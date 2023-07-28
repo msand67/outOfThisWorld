@@ -29,6 +29,8 @@ Time limit
 Security penalty
 Security interval (how often does security go up after grace period)
 Fail penalty
+Bonus criteria
+Bonus value
 
 Check details:
 Type
