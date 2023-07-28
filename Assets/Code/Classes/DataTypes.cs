@@ -51,4 +51,8 @@ namespace dataStructures
     {
         Breach, Egghead, Smoothtalk, Gumshoe, Footwork, FastHands
     }
+    public enum BonusCriteria
+    {
+        TimeConstraint, ExtraRoom
+    }
 }
