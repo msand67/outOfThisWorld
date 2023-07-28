@@ -12,9 +12,9 @@ namespace dataStructures
         public bool isHidden;
         public double timeToExecute;
         public bool isRequired;
-        public Check(CheckType iType = CheckType.Breach, int iDifficulty=10, int iPenalty=2, bool iIsHidden = false, double iTimeToExecute = 10.0, bool iIsRequired = false)
+        public Check(int iType = 1, int iDifficulty=10, int iPenalty=2, bool iIsHidden = false, double iTimeToExecute = 10.0, bool iIsRequired = false)
         {
-            type = iType;
+            type = (CheckType)iType;
             difficulty = (CheckDifficulty)iDifficulty;
             penalty = (FailPenalty)iPenalty;
             isHidden = iIsHidden;
