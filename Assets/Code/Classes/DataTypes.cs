@@ -55,4 +55,8 @@ namespace dataStructures
     {
         TimeConstraint, ExtraRoom
     }
+    public enum Action
+    {
+        Move, MakeCheck, Enter, Exit
+    }
 }
