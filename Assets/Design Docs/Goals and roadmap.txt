@@ -19,6 +19,7 @@ player receives rewards from missions
 player can 'win'
 A tutorial
 Players can change the plan during a mission
+Balance timing numbers
 
 
 Bonuses:

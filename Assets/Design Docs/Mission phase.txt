@@ -7,3 +7,31 @@ As such, this mode is straightforward for the player, display wise they need inf
 A log on one side will inform the player of successes/failures, above it is the current execution time vs target time vs time limit. Security level can be found here as well.
 
 Because the player can't do tons here (potentially) it is important to keep the run-time short so it's not disruptive to the gameplay flow. Probably do a few tests to see how it feels.
+
+
+Data schema:
+Each level will be represented by an image and a corresponding JSON file which holds room data.
+
+Basic room data is as follows:
+Node location (to assign movement for NPCs)
+Node list
+Node connections (time to travel)
+Which nodes are entrances
+Bonus:
+Which rooms can hold what checks
+
+
+Mission details:
+JSON that holds the following information
+What checks are in which room
+Patrol paths (bonus)
+Time limit
+Security penalty
+Security interval (how often does security go up after grace period)
+Fail penalty
+
+Check details:
+Type
+Difficulty
+isHidden
+TimeToExecute
