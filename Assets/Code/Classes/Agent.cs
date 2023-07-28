@@ -7,7 +7,8 @@ namespace dataStructures
     public class Agent
     {
         public Dictionary<StatType, int> statList;
-        string name;
+        public string name;
+        public int id;
 
         public Agent()
         {
@@ -20,11 +21,13 @@ namespace dataStructures
             statList.Add(StatType.Smoothtalk, 0);
 
             name = "Murphy";
+            id = -1;
         }
-        public Agent(Dictionary<StatType, int> iStatList, string iName)
+        public Agent(Dictionary<StatType, int> iStatList, string iName, int iId)
         {
             statList = iStatList;
             name = iName;
+            id = iId;
         }
     }
 }
