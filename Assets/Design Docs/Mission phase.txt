@@ -1,0 +1,9 @@
+In the mission phase, intial prototype will not be very interactive, mostly just watch execution of your plan.
+
+Bonuses will add in-mission decisions to be made. (rerouting, consumable use, etc)
+
+As such, this mode is straightforward for the player, display wise they need information to see what happens.
+
+A log on one side will inform the player of successes/failures, above it is the current execution time vs target time vs time limit. Security level can be found here as well.
+
+Because the player can't do tons here (potentially) it is important to keep the run-time short so it's not disruptive to the gameplay flow. Probably do a few tests to see how it feels.

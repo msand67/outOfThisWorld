@@ -1,0 +1,14 @@
+Here players can view details about potential missions.
+Details include:
+Mission difficulty,
+Known skillchecks to be made,
+amount of concealed information,
+available team members,
+room details,
+goal progress,
+current plan completion time,
+Plan time margin.
+
+When planning, there will be a list of 'must complete' rooms. They will have stars on their rooms. If there is a required order, the will have a number next to the star.
+
+When a plan is made, an estimated time to complete will be listed. Each mission has a soft time limit, going over that will start to increase security. Checks get harder, and failures add more time. Go over by too much, and the plan fails.

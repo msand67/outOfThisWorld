@@ -1,0 +1,51 @@
+
+What makes it 'out of this world?'
+
+Why do the heists?
+
+Player goal: get out of the dystopian hellhole you live on, get out of this world. 
+
+Mission rewards: cash, or rocket parts. Can either buy passage off-world, or hire someone to build you a rocket and take your team with you too.
+
+ending the game, pressing the 'launch' button.
+
+
+Roadmap:
+player can play a mission (success or failure happens here)
+player can plan missions
+player can select between multiple missions
+player can select their team for each mission
+player receives rewards from missions
+player can 'win'
+A tutorial
+Players can change the plan during a mission
+
+
+Bonuses:
+Loading screens
+Saving/loading
+Players can obtain additional information about a mission
+Give NPCs more personality (squawks, banter, etc)
+NPC progression
+Player progression
+More to do during mission execution
+
+Give NPCs more personality (squawks, banter, etc)
+Ideas here:
+NPCs have opinion of player, and each other. These inform what squawks you'll see during a mission, and during planning.
+
+Increasing opinion:
+For player: Finishing within estimate, with low security, with extra pay.
+
+For teammates: Finish a task successfully, finish a task early.
+
+Reducing opinion:
+For Player: fail a mission, finish over estimate, or with high security. Assign a task they are bad at.
+
+For NPCs: critically fail a task. finish a task late. Be the one who fails the mission.
+
+
+All moments when opinion changes are times for a squawk to happen.
+
+What does opinion do:
+bonuses to stats when with party members they like, penalties when with members they hate. Increased crit chance when they like the player, increased fumble chance when they hate the player.

@@ -1,0 +1,21 @@
+Game boot up: 
+Player comes to main menu screen. Options are:
+
+new game
+load game (if time permits to create save method)
+options
+exit
+credits (for any assets used, etc)
+
+
+
+Entering the game:
+player is brought to the planning phase
+Things they do here: pick mission, pick team, give mission assignments
+When time to execute: move to mission phase
+
+
+Mission phase:
+Most basic form, watch as your plan executes. There will be an estimate of how long the mission will take, and you can see the difference between the 'ideal' and reality.
+
+When execution is complete, a results/stats screen is shown. After, return to the planning phase.
