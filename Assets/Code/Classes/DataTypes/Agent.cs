@@ -11,6 +11,8 @@ namespace dataStructures
         public List<Stat> statList;
         public string name;
         public int id;
+        public int currentRoom;
+        public bool isInside;
 
         public Agent()
         {
@@ -24,12 +26,16 @@ namespace dataStructures
 
             name = "Murphy";
             id = -1;
+            currentRoom = -1;
+            isInside = false;
         }
-        public Agent(List<Stat> iStatList, string iName, int iId)
+        public Agent(List<Stat> iStatList, string iName, int iId, int iCurrentRoom, bool iIsInside)
         {
             statList = iStatList;
             name = iName;
             id = iId;
+            currentRoom = iCurrentRoom;
+            isInside = iIsInside;
         }
         public int GetCheckMod(CheckType type)
         {
@@ -40,12 +46,32 @@ namespace dataStructures
         {
             switch(action){
                 case AgentAction.MakeCheck:
-                    return time * (1-(statList[(int)StatType.FastHands].level * 0.05));
+                    return time * (1+(statList[(int)StatType.FastHands].level * 0.05));
                 case AgentAction.Move:
-                    return time * (1-(statList[(int)StatType.Footwork].level * 0.05));
+                    return time * (1+(statList[(int)StatType.Footwork].level * 0.05));
                 default:
                     return time;
             }
+        }
+
+        internal string GetBestStat()
+        {
+            Stat highestStat = new Stat(StatType.Breach, -1);
+            string statlist = "";
+
+            foreach (Stat stat in statList)
+            {
+                if (stat.level > highestStat.level)
+                {
+                    highestStat = stat;
+                    statlist = stat.type.ToString();
+                }else if (stat.level == highestStat.level)
+                {
+                    statlist += $", {stat.type.ToString()}";
+                }
+
+            }
+            return statlist;
         }
     }
 
