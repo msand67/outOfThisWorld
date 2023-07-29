@@ -31,10 +31,10 @@ namespace dataStructures
 
             agentLocations = new List<AgentLocation>();
 
-            Dictionary<int, List<PlanStep>> tempPlanSteps = new Dictionary<int, List<PlanStep>>();
+            List<ActionList> tempPlanSteps = new List<ActionList>();
             foreach(AgentLocation a  in agentLocations)
             {
-                tempPlanSteps.Add(a.agentId, new List<PlanStep>());
+                tempPlanSteps.Add(new ActionList( a.agentId, new List<PlanStep>()));
             }
 
 

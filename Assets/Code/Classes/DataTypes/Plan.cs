@@ -5,60 +5,92 @@ using UnityEngine;
 
 namespace dataStructures
 {
+    [Serializable]
     public class Plan
     {
-        public Dictionary<int, List<PlanStep>> actionList; //int is AgentId
+        public List<ActionList> actionList; //must be constructed so that elements are at the index equal to their agentId (I hate this, find a better solution)
 
-        public Plan (Dictionary<int, List<PlanStep>> iActionList)
+        public Plan(List<Agent> agents)
+        {
+            actionList = new List<ActionList>();
+            foreach(Agent a in agents)
+            {
+                ActionList tempActionList = new ActionList(a.id, new List<PlanStep>());
+                actionList.Add(tempActionList);
+            }
+        }
+        public Plan(List<Agent> agents, List<List<PlanStep>> planStepsList)
+        {
+            actionList = new List<ActionList>();
+            for (int i = 0; i< agents.Count; i++)
+            {
+                actionList.Add(new ActionList(agents[i].id, planStepsList[i]));
+            }
+        }
+
+        public Plan (List<ActionList> iActionList)
         {
             actionList = iActionList;
         }
 
         public void NextAction(int id)
         {
-            actionList[id].RemoveAt(0);
+            GetActionListById(id).steps.RemoveAt(0);
         }
 
         public void AddAction(int id, PlanStep step)
         {
-            actionList[id].Add(step);
+            GetActionListById(id).steps.Add(step);
         }
         public void RemoveActionAtIndex(int id, int index)
         {
-            actionList[id].RemoveAt(index);
+            GetActionListById(id).steps.RemoveAt(index);
         }
 
         internal double RemoveTime(int id, double time)
         {
-            actionList[id][0].timeRemaining -= time;
-            return actionList[id][0].timeRemaining;
+            GetActionListById(id).steps[0].timeRemaining -= time;
+            return GetActionListById(id).steps[0].timeRemaining;
         }
         internal void AddTime(int id, double time)
         {
-            actionList[id][0].timeRemaining += time;
+            GetActionListById(id).steps[0].timeRemaining += time;
         }
         internal void ReplaceTime(int id, double time)
         {
-            actionList[id][0].timeRemaining = time;
+            GetActionListById(id).steps[0].timeRemaining = time;
         }
         public AgentAction GetCurrentAction(int id)
         {
-            return actionList[id][0].action;
+            return GetActionListById(id).steps[0].action;
         }
         public AgentAction GetNextAction(int id)
         {
-            return actionList[id][1].action;
+            return GetActionListById(id).steps[1].action;
         }
         public PlanStep GetCurrentStep(int id)
         {
-            return actionList[id][0];
+            return GetActionListById(id).steps[0];
         }
         public PlanStep GetNextStep(int id)
         {
-            return actionList[id][1];
+            return GetActionListById(id).steps[1];
+        }
+
+        public ActionList GetActionListById(int id)
+        {
+            foreach(ActionList a in actionList)
+            {
+                if(a.agentId == id)
+                {
+                    return a;
+                }
+            }
+            return new ActionList(-1, new List<PlanStep>());
         }
     }
 
+    [Serializable]
     public class PlanStep
     {
         public AgentAction action;
@@ -73,6 +105,19 @@ namespace dataStructures
             timeRemaining = iTimeRemaining;
         }
 
-       
+
     }
+
+    [Serializable]
+    public class ActionList {
+        public int agentId;
+        public List<PlanStep> steps;
+
+        public ActionList(int iAgentId, List<PlanStep> iSteps)
+        {
+            agentId = iAgentId;
+            steps = iSteps;
+        }
+    }
+
 }

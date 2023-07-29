@@ -37,3 +37,7 @@ Difficulty
 Fail penalty
 isHidden
 TimeToExecute
+
+
+
+planStep initialization needs to receive the timeToExecute value from the check that it is tracking. Syncing between those two in general is needed. Probably a new constuctor from a check.

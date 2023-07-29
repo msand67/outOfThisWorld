@@ -37,7 +37,7 @@ namespace dataStructures
             return roomList[id];
         }
 
-        public (bool, int) PerformCheck(int id, Dictionary<StatType, int> statList, int difficultyMod)
+        public (bool, int, double) PerformCheck(int id, List<Stat> statList, int difficultyMod)
         {
             return roomList[id].check.PerformCheck(statList, difficultyMod);
         }

@@ -31,14 +31,14 @@ namespace dataStructures
             isRequired = iIsRequired;
         }
 
-        public (bool, int) PerformCheck(Dictionary<StatType, int> statList, int difficultyMod = 0)
+        public (bool, int, double) PerformCheck(List<Stat> statList, int difficultyMod = 0)
         {
-            int attemptValue = UnityEngine.Random.Range(0, 20) + statList[(StatType)type];
+            int attemptValue = UnityEngine.Random.Range(0, 20) + statList[(int)type].level;
             if (attemptValue >= (int)difficulty + difficultyMod)
             {
-                return (true, 0);
+                return (true, 0, 0);
             }
-            return (false, (int)penalty);
+            return (false, (int)penalty, timeToExecute);
         }
 
     }
