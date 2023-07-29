@@ -9,6 +9,7 @@ Mission rewards: cash, or rocket parts. Can either buy passage off-world, or hir
 
 ending the game, pressing the 'launch' button.
 
+Idea: Make UI Elements look like pieces of paper on a desk, with a TV Screen for the map view.
 
 Roadmap:
 player can play a mission (success or failure happens here)
