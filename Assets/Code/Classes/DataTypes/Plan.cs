@@ -8,7 +8,7 @@ namespace dataStructures
     [Serializable]
     public class Plan
     {
-        public List<ActionList> actionList; //must be constructed so that elements are at the index equal to their agentId (I hate this, find a better solution)
+        public List<ActionList> actionList;
 
         public Plan(List<Agent> agents)
         {
@@ -66,7 +66,12 @@ namespace dataStructures
         }
         public AgentAction GetNextAction(int id)
         {
-            return GetActionListById(id).steps[1].action;
+            if (GetActionListById(id).steps.Count < 1)
+            {
+                return GetActionListById(id).steps[1].action;
+            }
+            else
+                return GetActionListById(id).steps[0].action;
         }
         public PlanStep GetCurrentStep(int id)
         {
@@ -97,12 +102,14 @@ namespace dataStructures
         public int roomNumber;
         public int targetRoom;
         public double timeRemaining;
+        public double baseTime;
         public PlanStep(AgentAction iAction, int iRoomNumber, int iTargetRoom=-1, double iTimeRemaining = -1)
         {
             action = iAction;
             roomNumber = iRoomNumber;
             targetRoom = iTargetRoom;
             timeRemaining = iTimeRemaining;
+            baseTime = iTimeRemaining;
         }
 
 
