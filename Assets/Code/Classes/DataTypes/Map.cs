@@ -32,22 +32,35 @@ namespace dataStructures
             roomList = iRoomList;
             travelMatrix = iTravelMatrix;
         }
+        public Room GetRoom(int id)
+        {
+            return roomList[id];
+        }
+
+        public (bool, int) PerformCheck(int id, Dictionary<StatType, int> statList, int difficultyMod)
+        {
+            return roomList[id].check.PerformCheck(statList, difficultyMod);
+        }
+        public CheckType GetRoomCheckType(int id)
+        {
+            return roomList[id].check.type;
+        }
 
     }
 
     public class Room
     {
-        Check myCheck;
+        public Check check;
         public bool isEntrance;
         object nodeLocation; //used to display location on UI and move characters to it.
         public Room()
         {
-            myCheck = new Check(CheckType.Breach);
+            check = new Check(CheckType.Breach);
             isEntrance = false;
         }
         public Room(Check iMyCheck, bool iIsEntrance, object iNodeLocation)
         {
-            myCheck = iMyCheck;
+            check = iMyCheck;
             isEntrance = iIsEntrance;
             nodeLocation = iNodeLocation;
         }

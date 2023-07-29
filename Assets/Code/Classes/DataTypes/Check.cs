@@ -31,8 +31,9 @@ namespace dataStructures
             isRequired = iIsRequired;
         }
 
-        public (bool, int) PerformCheck(int attemptValue, int difficultyMod = 0)
+        public (bool, int) PerformCheck(Dictionary<StatType, int> statList, int difficultyMod = 0)
         {
+            int attemptValue = UnityEngine.Random.Range(0, 20) + statList[(StatType)type];
             if (attemptValue >= (int)difficulty + difficultyMod)
             {
                 return (true, 0);

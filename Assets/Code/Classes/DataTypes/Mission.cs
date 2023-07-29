@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,13 +9,13 @@ namespace dataStructures
     {
         public Map myMap;
         public double gracePeriod;
-        public SecurityInterval myInterval;
-        public SecurityPenalty myPenalty;
+        public SecurityInterval securityInterval;
+        public SecurityPenalty penalty;
         public double baseReward;
         public double bonusReward;
-        public BonusCriteria myCriteria;
+        public BonusCriteria bonusCriteria;
 
-        public List<(Agent, int)> agentList; //int is index of what room in the map they are in.
+        public List<AgentLocation> agentLocations; //int is index of what room in the map they are in.
 
         public Plan myPlan;
 
@@ -22,21 +23,55 @@ namespace dataStructures
         {
             myMap = new Map();
             gracePeriod = 120;
-            myInterval = SecurityInterval.medium;
-            myPenalty = SecurityPenalty.medium;
+            securityInterval = SecurityInterval.medium;
+            penalty = SecurityPenalty.medium;
             baseReward = 100000;
             bonusReward = 25000;
-            myCriteria = BonusCriteria.TimeConstraint;
+            bonusCriteria = BonusCriteria.TimeConstraint;
+
+            agentLocations = new List<AgentLocation>();
+
+            Dictionary<int, List<PlanStep>> tempPlanSteps = new Dictionary<int, List<PlanStep>>();
+            foreach(AgentLocation a  in agentLocations)
+            {
+                tempPlanSteps.Add(a.agentId, new List<PlanStep>());
+            }
+
+
+            myPlan = new Plan(tempPlanSteps);
         }
-        public Mission(Map iMyMap, double iGracePeriod, SecurityInterval iMyInterval, SecurityPenalty iMyPenalty, double iBaseReward, double iBonusReward, BonusCriteria iMyCriteria)
+        public Mission(Map iMyMap, double iGracePeriod, SecurityInterval iMyInterval, SecurityPenalty iMyPenalty, double iBaseReward, double iBonusReward, BonusCriteria iMyCriteria, List<AgentLocation> iAgentList, Plan iMyPlan)
         {
             myMap = iMyMap;
             gracePeriod = iGracePeriod;
-            myInterval = iMyInterval;
-            myPenalty = iMyPenalty;
+            securityInterval = iMyInterval;
+            penalty = iMyPenalty;
             baseReward = iBaseReward;
             bonusReward = iBonusReward;
-            myCriteria = iMyCriteria;
+            bonusCriteria = iMyCriteria;
+            agentLocations = iAgentList;
+            myPlan = iMyPlan;
+        }
+
+        internal void UpdateLocation(int id, int roomNumber)
+        {
+            foreach(AgentLocation location in agentLocations)
+            {
+                if (location.agentId == id)
+                {
+                    location.roomId = roomNumber;
+                }
+            }
+        }
+    }
+    public class AgentLocation
+    {
+        public int agentId;
+        public int roomId;
+        public AgentLocation(int iAgentId = -1, int iRoomid = -1)
+        {
+            agentId = iAgentId;
+            roomId = iRoomid;
         }
     }
 }

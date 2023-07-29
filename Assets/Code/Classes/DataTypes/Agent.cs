@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -28,6 +29,22 @@ namespace dataStructures
             statList = iStatList;
             name = iName;
             id = iId;
+        }
+        public int GetCheckMod(CheckType type)
+        {
+            return statList[(StatType)type];
+        }
+
+        internal double ComputeTime(double time, AgentAction action)
+        {
+            switch(action){
+                case AgentAction.MakeCheck:
+                    return time * (1-(statList[StatType.FastHands] * 0.05));
+                case AgentAction.Move:
+                    return time * (1-(statList[StatType.Footwork] * 0.05));
+                default:
+                    return time;
+            }
         }
     }
 }

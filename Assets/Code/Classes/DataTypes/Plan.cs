@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,31 +9,70 @@ namespace dataStructures
     {
         public Dictionary<int, List<PlanStep>> actionList; //int is AgentId
 
-        public Plan (List<Agent> agents, List<List<PlanStep>> agentPlans)
+        public Plan (Dictionary<int, List<PlanStep>> iActionList)
         {
-            actionList = new Dictionary<int, List<PlanStep>>();
-            for(int i = 0; i<agents.Count; i++)
-            {
-                actionList.Add(agents[i].id, agentPlans[i]);
-            }
+            actionList = iActionList;
         }
 
-        public void nextAction(int id)
+        public void NextAction(int id)
         {
             actionList[id].RemoveAt(0);
         }
 
+        public void AddAction(int id, PlanStep step)
+        {
+            actionList[id].Add(step);
+        }
+        public void RemoveActionAtIndex(int id, int index)
+        {
+            actionList[id].RemoveAt(index);
+        }
 
+        internal double RemoveTime(int id, double time)
+        {
+            actionList[id][0].timeRemaining -= time;
+            return actionList[id][0].timeRemaining;
+        }
+        internal void AddTime(int id, double time)
+        {
+            actionList[id][0].timeRemaining += time;
+        }
+        internal void ReplaceTime(int id, double time)
+        {
+            actionList[id][0].timeRemaining = time;
+        }
+        public AgentAction GetCurrentAction(int id)
+        {
+            return actionList[id][0].action;
+        }
+        public AgentAction GetNextAction(int id)
+        {
+            return actionList[id][1].action;
+        }
+        public PlanStep GetCurrentStep(int id)
+        {
+            return actionList[id][0];
+        }
+        public PlanStep GetNextStep(int id)
+        {
+            return actionList[id][1];
+        }
     }
 
-    public struct PlanStep
+    public class PlanStep
     {
-        public Action action;
+        public AgentAction action;
         public int roomNumber;
-        public PlanStep(Action iAction, int iRoomNumber)
+        public int targetRoom;
+        public double timeRemaining;
+        public PlanStep(AgentAction iAction, int iRoomNumber, int iTargetRoom=-1, double iTimeRemaining = -1)
         {
             action = iAction;
             roomNumber = iRoomNumber;
+            targetRoom = iTargetRoom;
+            timeRemaining = iTimeRemaining;
         }
+
+       
     }
 }
