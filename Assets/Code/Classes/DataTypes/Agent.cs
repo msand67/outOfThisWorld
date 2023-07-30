@@ -15,6 +15,7 @@ namespace dataStructures
         public bool isInside;
         public int cost;
         public string roleDesc;
+        public Sprite sprite;
 
         public Agent()
         {
@@ -99,6 +100,10 @@ namespace dataStructures
                 statNums += $"{s.type.ToString()}\n";
             }
             return statNums;
+        }
+        internal string GetStatAbrv()
+        {
+            return "B\nE\nST\nG\nF\nFH";
         }
 
         internal string GetDescriptionText()

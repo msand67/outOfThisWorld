@@ -3,17 +3,29 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using dataStructures;
+using System;
+
 public class PlanningManager : MonoBehaviour
 {
     public RectTransform mapPanel;
     [SerializeField]
     public UnityEngine.UIElements.ScrollView agentView;
+    public RectTransform teamSelectionObjects;
+    public RectTransform planBuildingObjects;
+
+    public UnityEngine.UI.Button viewToggle;
+
+    public RectTransform agent0Card;
+    public RectTransform agent1Card;
+    public RectTransform agent2Card;
 
 
     [SerializeField]
     List<Agent> agents;
     [SerializeField]
     List<Transform> agentPanels;
+
+    int selectedAgentId;
 
     List<Agent> team;
     // Start is called before the first frame update
@@ -22,6 +34,7 @@ public class PlanningManager : MonoBehaviour
         team = new List<Agent>();
         LoadAgents();
         LoadAgentPanels();
+        selectedAgentId = -1;
     }
 
     // Update is called once per frame
@@ -66,18 +79,54 @@ public class PlanningManager : MonoBehaviour
         if (team.Count < 3)
         {
             team.Add(agents[agentIndex]);
+            //change button to remove instead of add agent.
+            UnityEngine.UI.Button button = agentPanels[agentIndex].GetComponentInChildren<UnityEngine.UI.Button>();
+            button.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "Remove agent";
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(delegate { RemoveAgentFromTeam(agents[agentIndex].id); });
+            AddAgentToTeamDisplay(agentIndex);
         }
-        //change button to remove instead of add agent.
-        UnityEngine.UI.Button button = agentPanels[agentIndex].GetComponentInChildren<UnityEngine.UI.Button>();
-        button.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "Remove agent";
-        button.onClick.RemoveAllListeners();
-        button.onClick.AddListener(delegate { RemoveAgentFromTeam(agents[agentIndex].id); });
         if (team.Count >= 3)
         {
             DisableAddButtons();
         }
 
     }
+
+    private void AddAgentToTeamDisplay(int agentIndex)
+    {
+        RectTransform targetCard = null;
+        switch (team.Count)
+        {
+            case 1:
+                targetCard = agent0Card;
+                break;
+            case 2:
+                targetCard = agent1Card;
+                break;
+            case 3:
+                targetCard = agent2Card;
+                break;
+            default:
+                break;
+        }
+        targetCard.GetComponentInChildren<UnityEngine.UI.Image>().sprite = agents[agentIndex].sprite;
+        Agent a = agents[agentIndex];
+        string statString = $"B  {a.statList[0].level},  F  {a.statList[4].level}\nE  {a.statList[1].level},  FH {a.statList[5].level}\nST {a.statList[2].level}\nG {a.statList[3].level}";
+        foreach (TMPro.TextMeshProUGUI t in targetCard.GetComponentsInChildren<TMPro.TextMeshProUGUI>())
+        {
+            if (t.name == "StatBox")
+            {
+                t.text = statString;
+            }
+            if (t.name == "NameBox")
+            {
+                t.text = a.name;
+            }
+        }
+
+    }
+
     public void RemoveAgentFromTeam(int agentId)
     {
         for (int i = 0; i < team.Count; i++)
@@ -91,7 +140,7 @@ public class PlanningManager : MonoBehaviour
                 button.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "Add to Team";
                 button.onClick.RemoveAllListeners();
                 button.onClick.AddListener(delegate { AddAgentToTeam(j); });
-
+                RemoveAgentFromDisplay(j, i);
                 break;
             }
         }
@@ -102,11 +151,82 @@ public class PlanningManager : MonoBehaviour
 
 
     }
+
+    private void RemoveAgentFromDisplay(int agentIndex, int teamIndex)
+    {
+        RectTransform targetCard = null;
+        RectTransform shiftCard = null;
+        int numTimesToShiftLeft = team.Count - teamIndex;
+
+
+        for (int i = 0; i < numTimesToShiftLeft; i++)
+        {
+            switch (teamIndex)
+            {
+                case 0:
+                    targetCard = agent0Card;
+                    shiftCard = agent1Card;
+                    break;
+                case 1:
+                    targetCard = agent1Card;
+                    shiftCard = agent2Card;
+                    break;
+                default:
+                    break;
+            }
+            ShiftAgentCardLeft(targetCard, shiftCard);
+            teamIndex++;
+        }
+
+        switch (teamIndex)
+        {
+            case 0:
+                targetCard = agent0Card;
+                break;
+            case 1:
+                targetCard = agent1Card;
+                break;
+            case 2:
+                targetCard = agent2Card;
+                break;
+            default:
+                break;
+        }
+
+        ClearAgentCard(targetCard);
+
+    }
+
+    private void ClearAgentCard(RectTransform targetCard)
+    {
+        foreach (TMPro.TextMeshProUGUI t in targetCard.GetComponentsInChildren<TMPro.TextMeshProUGUI>())
+        {
+            t.text = "";
+        }
+        targetCard.GetComponentInChildren<UnityEngine.UI.Image>().sprite = null;
+    }
+
+    private void ShiftAgentCardLeft(RectTransform targetCard, RectTransform shiftCard)
+    {
+        foreach (TMPro.TextMeshProUGUI t in targetCard.GetComponentsInChildren<TMPro.TextMeshProUGUI>())
+        {
+            foreach(TMPro.TextMeshProUGUI s in shiftCard.GetComponentsInChildren<TMPro.TextMeshProUGUI>())
+            {
+                if (t.name == s.name)
+                {
+                    t.text = s.text;
+                    break;
+                }
+            }
+        }
+        targetCard.GetComponentInChildren<UnityEngine.UI.Image>().sprite = shiftCard.GetComponentInChildren<UnityEngine.UI.Image>().sprite;
+    }
+
     public int GetIndexOfAgent(int agentId)
     {
-        for(int i = 0; i<agents.Count; i++)
+        for (int i = 0; i < agents.Count; i++)
         {
-            if(agents[i].id == agentId)
+            if (agents[i].id == agentId)
             {
                 return i;
             }
@@ -141,11 +261,23 @@ public class PlanningManager : MonoBehaviour
 
     public void MoveToTeamSelection()
     {
-
+        mapPanel.gameObject.SetActive(false);
+        teamSelectionObjects.gameObject.SetActive(true);
+        planBuildingObjects.gameObject.SetActive(false);
+        viewToggle.onClick.RemoveAllListeners();
+        viewToggle.onClick.AddListener(MoveToPlanning);
+        viewToggle.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "Planning";
+        viewToggle.GetComponent<Tooltip>().message = "Move to a screen where you can create your plan.";
 
     }
     public void MoveToPlanning()
     {
-
+        mapPanel.gameObject.SetActive(true);
+        teamSelectionObjects.gameObject.SetActive(false);
+        planBuildingObjects.gameObject.SetActive(true);
+        viewToggle.onClick.RemoveAllListeners();
+        viewToggle.onClick.AddListener(MoveToTeamSelection);
+        viewToggle.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "Team Select";
+        viewToggle.GetComponent<Tooltip>().message = "Move to a screen where you can select your team.";
     }
 }
