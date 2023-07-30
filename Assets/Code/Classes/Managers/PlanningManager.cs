@@ -28,6 +28,7 @@ public class PlanningManager : MonoBehaviour
     int selectedAgentId;
 
     List<Agent> team;
+    List<List<PlanStep>> planSteps;
     // Start is called before the first frame update
     void Start()
     {
@@ -35,7 +36,13 @@ public class PlanningManager : MonoBehaviour
         LoadAgents();
         LoadAgentPanels();
         selectedAgentId = -1;
+        planSteps = new List<List<PlanStep>>();
+        for (int i = 0; i < 3; i++)
+        {
+            planSteps.Add(new List<PlanStep>());
+        }
     }
+
 
     // Update is called once per frame
     void Update()
@@ -210,7 +217,7 @@ public class PlanningManager : MonoBehaviour
     {
         foreach (TMPro.TextMeshProUGUI t in targetCard.GetComponentsInChildren<TMPro.TextMeshProUGUI>())
         {
-            foreach(TMPro.TextMeshProUGUI s in shiftCard.GetComponentsInChildren<TMPro.TextMeshProUGUI>())
+            foreach (TMPro.TextMeshProUGUI s in shiftCard.GetComponentsInChildren<TMPro.TextMeshProUGUI>())
             {
                 if (t.name == s.name)
                 {
@@ -279,5 +286,45 @@ public class PlanningManager : MonoBehaviour
         viewToggle.onClick.AddListener(MoveToTeamSelection);
         viewToggle.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "Team Select";
         viewToggle.GetComponent<Tooltip>().message = "Move to a screen where you can select your team.";
+    }
+
+    public void ChangeSelectedAgent(int index)
+    {
+        selectedAgentId = index;
+    }
+
+    TODO: add textbox that reports status of planStep creation attempt(sucess, failure & why, etc)
+    public void ConstructPlanStep(Room room)
+    {
+        int len = planSteps[selectedAgentId].Count;
+        double[,] travelMatrix = mapPanel.GetComponent<Map>().travelMatrix;
+        if (len == 0 || room.id != planSteps[selectedAgentId][len - 1].roomNumber)
+        {
+            //creat move if possible.
+        }
+        //then creat makeCheck
+        planSteps[selectedAgentId].Add(new PlanStep(AgentAction.MakeCheck, room.id, -1, room.check.timeToExecute));
+    }
+
+    //overload for enter/exit actions.
+    public void ConstructPlanStep(Room room, AgentAction action)
+    {
+        int top = planSteps[selectedAgentId].Count - 1;
+        if (room.isEntrance)
+        {
+            planSteps[selectedAgentId].Add(new PlanStep(action, room.id, -1, 10));
+        }
+        else
+        { //notify failure due to bad path}
+
+        }
+    }
+
+
+    //overload for wait type action.
+    public void ConstructPlanStep(AgentAction action, double time)
+    {
+        int top = planSteps[selectedAgentId].Count - 1;
+        planSteps[selectedAgentId].Add(new PlanStep(AgentAction.Wait, planSteps[selectedAgentId][top].roomNumber, -1, time));
     }
 }

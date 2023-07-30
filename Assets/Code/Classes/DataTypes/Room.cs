@@ -10,18 +10,21 @@ namespace dataStructures {
         public bool isEntrance;
         [SerializeField]
         TMPro.TextMeshProUGUI textBox;
+        public int id;
         private void Start()
         {
 
             check = new Check(CheckType.Breach);
             isEntrance = false;
+            id = -1;
         }
 
-        public void Init(Check newCheck, bool iIsEntrance)
+        public void Init(Check newCheck, bool iIsEntrance, int iId)
         {
 
             check = newCheck;
             isEntrance = iIsEntrance;
+            id = iId;
         }
 
         public void UpdateTooltipText(int roomId)
