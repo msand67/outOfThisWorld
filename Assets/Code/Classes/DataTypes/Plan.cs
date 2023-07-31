@@ -13,7 +13,7 @@ namespace dataStructures
         public Plan(List<Agent> agents)
         {
             actionList = new List<ActionList>();
-            foreach(Agent a in agents)
+            foreach (Agent a in agents)
             {
                 ActionList tempActionList = new ActionList(a.id, new List<PlanStep>());
                 actionList.Add(tempActionList);
@@ -22,13 +22,13 @@ namespace dataStructures
         public Plan(List<Agent> agents, List<List<PlanStep>> planStepsList)
         {
             actionList = new List<ActionList>();
-            for (int i = 0; i< agents.Count; i++)
+            for (int i = 0; i < agents.Count; i++)
             {
                 actionList.Add(new ActionList(agents[i].id, planStepsList[i]));
             }
         }
 
-        public Plan (List<ActionList> iActionList)
+        public Plan(List<ActionList> iActionList)
         {
             actionList = iActionList;
         }
@@ -84,9 +84,9 @@ namespace dataStructures
 
         public ActionList GetActionListById(int id)
         {
-            foreach(ActionList a in actionList)
+            foreach (ActionList a in actionList)
             {
-                if(a.agentId == id)
+                if (a.agentId == id)
                 {
                     return a;
                 }
@@ -103,7 +103,7 @@ namespace dataStructures
         public int targetRoom;
         public double timeRemaining;
         public double baseTime;
-        public PlanStep(AgentAction iAction, int iRoomNumber, int iTargetRoom=-1, double iTimeRemaining = -1)
+        public PlanStep(AgentAction iAction, int iRoomNumber, int iTargetRoom = -1, double iTimeRemaining = -1)
         {
             action = iAction;
             roomNumber = iRoomNumber;
@@ -111,12 +111,21 @@ namespace dataStructures
             timeRemaining = iTimeRemaining;
             baseTime = iTimeRemaining;
         }
+        public bool Compare(PlanStep step)
+        {
+            if (this.action == step.action && this.roomNumber == step.roomNumber && this.targetRoom == step.targetRoom && this.timeRemaining == step.timeRemaining && this.baseTime == step.baseTime)
+            {
+                return true;
+            }
+            return false;
+        }
 
 
     }
 
     [Serializable]
-    public class ActionList {
+    public class ActionList
+    {
         public int agentId;
         public List<PlanStep> steps;
 
@@ -125,6 +134,8 @@ namespace dataStructures
             agentId = iAgentId;
             steps = iSteps;
         }
+
+
     }
 
 }

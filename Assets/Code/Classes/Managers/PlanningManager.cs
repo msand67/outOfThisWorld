@@ -12,6 +12,8 @@ public class PlanningManager : MonoBehaviour
     public UnityEngine.UIElements.ScrollView agentView;
     public RectTransform teamSelectionObjects;
     public RectTransform planBuildingObjects;
+    public MissionManager missionManager;
+    public GameObject missionPhaseObject;
 
     public UnityEngine.UI.Button viewToggle;
 
@@ -19,6 +21,20 @@ public class PlanningManager : MonoBehaviour
     public RectTransform agent1Card;
     public RectTransform agent2Card;
 
+    public TMPro.TextMeshProUGUI planningBoxTitle;
+    public RectTransform planningBoxContent;
+    public List<List<TMPro.TextMeshProUGUI>> planningBoxTextLIst;
+
+    public TMPro.TextMeshProUGUI planStepReportingLog;
+
+    public TMPro.TextMeshProUGUI planStepBox;
+
+    public TMPro.TextMeshProUGUI roomDetailsBox;
+
+
+
+    private List<(int, bool)> requiredRoomsAssigned;
+    private List<(int, bool)> hiddenRoomsRevealed;
 
     [SerializeField]
     List<Agent> agents;
@@ -26,6 +42,7 @@ public class PlanningManager : MonoBehaviour
     List<Transform> agentPanels;
 
     int selectedAgentId;
+    int selectedStepId;
 
     List<Agent> team;
     List<List<PlanStep>> planSteps;
@@ -36,18 +53,79 @@ public class PlanningManager : MonoBehaviour
         LoadAgents();
         LoadAgentPanels();
         selectedAgentId = -1;
+        selectedStepId = -1;
         planSteps = new List<List<PlanStep>>();
         for (int i = 0; i < 3; i++)
         {
             planSteps.Add(new List<PlanStep>());
         }
+        planningBoxTextLIst = new List<List<TMPro.TextMeshProUGUI>>();
+        for (int i = 0; i < 3; i++)
+        {
+            planningBoxTextLIst.Add(new List<TMPro.TextMeshProUGUI>());
+        }
+        foreach (UnityEngine.UI.Button b in planBuildingObjects.GetComponentsInChildren<UnityEngine.UI.Button>())
+        {
+            if (b.name == "ExitButton1")
+            {
+                b.onClick.AddListener(delegate { ConstructPlanStep(GetRoomById(1), AgentAction.Exit); });
+            }
+            if (b.name == "ExitButton2")
+            {
+                b.onClick.AddListener(delegate { ConstructPlanStep(GetRoomById(5), AgentAction.Exit); });
+            }
+            if (b.name == "EnterButton1")
+            {
+                b.onClick.AddListener(delegate { ConstructPlanStep(GetRoomById(1), AgentAction.Enter); });
+            }
+            if (b.name == "EnterButton2")
+            {
+                b.onClick.AddListener(delegate { ConstructPlanStep(GetRoomById(5), AgentAction.Enter); });
+            }
+            if (b.name == "WaitButton")
+            {
+
+                b.onClick.AddListener(delegate { ConstructPlanStep(AgentAction.Wait, double.Parse(b.GetComponentInChildren<TMPro.TMP_InputField>().text)); });
+            }
+        }
+
+    }
+
+    internal void DisplayRoomDetails(Room room)
+    {
+        bool hidden = false;
+        foreach ((int, bool) set in hiddenRoomsRevealed)
+        {
+            if (set.Item1 == room.id)
+            {
+                hidden = set.Item2;
+            }
+        }
+        roomDetailsBox.text = room.GetRoomDescription(hidden);
+    }
+    private Room GetRoomById(int roomId)
+    {
+        foreach (Room r in mapPanel.GetComponentsInChildren<Room>())
+        {
+            if (r.id == roomId)
+            {
+                return r;
+            }
+        }
+        throw new Exception("Could not find room");
     }
 
 
     // Update is called once per frame
     void Update()
     {
+        if (requiredRoomsAssigned == null && hiddenRoomsRevealed == null)
+        {
 
+            requiredRoomsAssigned = mapPanel.GetComponentInChildren<Map>().GetRequiredRooms();
+            hiddenRoomsRevealed = mapPanel.GetComponentInChildren<Map>().GetHIddenRooms();
+            mapPanel.GetComponentInChildren<Map>().UpdateRoomTextBoxes(requiredRoomsAssigned, hiddenRoomsRevealed);
+        }
     }
     private void LoadAgents()
     {
@@ -290,33 +368,129 @@ public class PlanningManager : MonoBehaviour
 
     public void ChangeSelectedAgent(int index)
     {
+        //disable old agent step list
+        if (selectedAgentId >= 0)
+        {
+            foreach (TMPro.TextMeshProUGUI t in planningBoxTextLIst[selectedAgentId])
+            {
+                t.gameObject.SetActive(false);
+            }
+        }
         selectedAgentId = index;
+
+        //enable current agent step list
+        foreach (TMPro.TextMeshProUGUI t in planningBoxTextLIst[selectedAgentId])
+        {
+            t.gameObject.SetActive(true); ;
+        }
+        //highlight selected agent
+
+        //hide plansteps and change name
+        planningBoxTitle.text = $"{team[selectedAgentId].name}'s Plan";
     }
 
-    TODO: add textbox that reports status of planStep creation attempt(sucess, failure & why, etc)
     public void ConstructPlanStep(Room room)
     {
         int len = planSteps[selectedAgentId].Count;
-        double[,] travelMatrix = mapPanel.GetComponent<Map>().travelMatrix;
-        if (len == 0 || room.id != planSteps[selectedAgentId][len - 1].roomNumber)
+        int currentRoom = -1;
+        PlanStep myStep;
+        if (len == 0)
         {
-            //creat move if possible.
+            //report that they need to have the character enter the building first.
+            planStepReportingLog.text = "Could not create plan step, please have the character enter the site first.";
+        }
+        //set flags for if entering building, or in a room previously.
+        if (len == 1)
+        {
+            currentRoom = planSteps[selectedAgentId][len - 1].targetRoom;
+        }
+        else
+        {
+            currentRoom = planSteps[selectedAgentId][len - 1].roomNumber;
+        }
+        double distance = mapPanel.GetComponentInChildren<Map>().GetTimeBetweenRooms(currentRoom, room.id);
+        if (len == 0 || room.id != currentRoom)
+        {
+            if (distance > 0)
+            {
+                //if we have a step distinct from previous, 
+                myStep = new PlanStep(AgentAction.Move, currentRoom, room.id, distance);
+                if (!myStep.Compare(planSteps[selectedAgentId][planSteps[selectedAgentId].Count - 1]))
+                {
+                    planSteps[selectedAgentId].Add(myStep);
+                    AddPlanStepToDisplay(planSteps[selectedAgentId][planSteps[selectedAgentId].Count - 1]);
+                }
+                //move to an adjacent room if possible
+            }
+            else
+            {
+                planStepReportingLog.text = $"Could not create plan step, rooms {room.id} and {currentRoom} are not adjacent.";
+                return;
+
+            }
         }
         //then creat makeCheck
-        planSteps[selectedAgentId].Add(new PlanStep(AgentAction.MakeCheck, room.id, -1, room.check.timeToExecute));
+        myStep = new PlanStep(AgentAction.MakeCheck, room.id, -1, room.check.timeToExecute);
+        if (!myStep.Compare(planSteps[selectedAgentId][planSteps[selectedAgentId].Count - 1]))
+        {
+            //if we have a distinct step, create and update.
+            planSteps[selectedAgentId].Add(myStep);
+
+            AddPlanStepToDisplay(planSteps[selectedAgentId][planSteps[selectedAgentId].Count - 1]);
+            UpdateIsRequiredFlags(planSteps[selectedAgentId][planSteps[selectedAgentId].Count - 1], true);
+            planStepReportingLog.text = $"Move to {room.id} and clear actions added to {team[selectedAgentId].name}'s plan";
+        }
+        else
+        {
+            planStepReportingLog.text = "Could not create plan step as it is a duplicate of the previous.";
+        }
+
+    }
+
+    private void UpdateIsRequiredFlags(PlanStep step, bool flag)
+    {
+        for (int i = 0; i < requiredRoomsAssigned.Count; i++)
+        {
+            if (requiredRoomsAssigned[i].Item1 == step.roomNumber)
+            {
+                requiredRoomsAssigned.RemoveAt(i);
+                requiredRoomsAssigned.Add((step.roomNumber, flag));
+            }
+        }
+        mapPanel.GetComponentInChildren<Map>().UpdateRoomTextBoxes(requiredRoomsAssigned, hiddenRoomsRevealed);
+
     }
 
     //overload for enter/exit actions.
     public void ConstructPlanStep(Room room, AgentAction action)
     {
-        int top = planSteps[selectedAgentId].Count - 1;
         if (room.isEntrance)
         {
-            planSteps[selectedAgentId].Add(new PlanStep(action, room.id, -1, 10));
+            if (action == AgentAction.Enter && !team[selectedAgentId].isInside)
+            {
+                planSteps[selectedAgentId].Add(new PlanStep(action, room.id, room.id, 10));
+                AddPlanStepToDisplay(planSteps[selectedAgentId][planSteps[selectedAgentId].Count - 1]);
+                planStepReportingLog.text = $"{action.ToString()} action added to {agents[selectedAgentId].name}'s plan";
+                ConstructPlanStep(room);
+                team[selectedAgentId].isInside = true;
+            }
+            else if (action == AgentAction.Exit && team[selectedAgentId].isInside)
+            {
+
+                planSteps[selectedAgentId].Add(new PlanStep(action, room.id, -1, 10));
+                AddPlanStepToDisplay(planSteps[selectedAgentId][planSteps[selectedAgentId].Count - 1]);
+                planStepReportingLog.text = $"{action.ToString()} action added to {agents[selectedAgentId].name}'s plan";
+                team[selectedAgentId].isInside = false;
+            }
+            else
+            {
+                planStepReportingLog.text = $"Agent cannot {action.ToString()} as they have already done so.";
+            }
+
         }
         else
-        { //notify failure due to bad path}
-
+        {
+            planStepReportingLog.text = $"Could not create plan step, room {room.id} is not an entrance.";
         }
     }
 
@@ -324,7 +498,137 @@ public class PlanningManager : MonoBehaviour
     //overload for wait type action.
     public void ConstructPlanStep(AgentAction action, double time)
     {
-        int top = planSteps[selectedAgentId].Count - 1;
-        planSteps[selectedAgentId].Add(new PlanStep(AgentAction.Wait, planSteps[selectedAgentId][top].roomNumber, -1, time));
+        int currentRoom = -1;
+        if (planSteps[selectedAgentId].Count > 0)
+        {
+            int top = planSteps[selectedAgentId].Count - 1;
+            currentRoom = planSteps[selectedAgentId][top].roomNumber;
+        }
+        planSteps[selectedAgentId].Add(new PlanStep(AgentAction.Wait, currentRoom, -1, time));
+        planStepReportingLog.text = $"Wait action added to {agents[selectedAgentId].name}'s plan";
+        AddPlanStepToDisplay(planSteps[selectedAgentId][planSteps[selectedAgentId].Count - 1]);
+    }
+    public void ClearPlanSteps()
+    {
+        while (planSteps[selectedAgentId].Count > 0)
+        {
+            RemovePlanStep();
+            planStepReportingLog.text = $"{team[selectedAgentId].name}'s plan erased.";
+        }
+        team[selectedAgentId].isInside = false;
+    }
+
+    public void RemovePlanStep()
+    {
+        //can currently only remove the newest step, due to massive logical dependencies for removing an old step. Someday...
+        AgentAction action = planSteps[selectedAgentId][planSteps[selectedAgentId].Count - 1].action;
+        if (action == AgentAction.Enter)
+        {
+            team[selectedAgentId].isInside = false;
+        }
+        if (action == AgentAction.Exit)
+        {
+            team[selectedAgentId].isInside = true;
+        }
+        planStepReportingLog.text = $"{action.ToString()} action removed from {team[selectedAgentId].name}'s plan";
+        UpdateIsRequiredFlags(planSteps[selectedAgentId][planSteps[selectedAgentId].Count - 1], false);
+        RemovePlanStepFromDisplay();
+        planSteps[selectedAgentId].RemoveAt(planSteps[selectedAgentId].Count - 1);
+    }
+    public void AddPlanStepToDisplay(PlanStep step)
+    {
+        string descriptor = "";
+        int index = planningBoxTextLIst[selectedAgentId].Count;
+        TMPro.TextMeshProUGUI foo = (TMPro.TextMeshProUGUI)Instantiate(planStepBox, planningBoxContent);
+        foo.text = "temp";
+        planningBoxTextLIst[selectedAgentId].Add(foo);
+        //format text box here
+        switch (step.action)
+        {
+            case AgentAction.Enter:
+                descriptor = $"Enter via room {step.targetRoom}";
+                break;
+            case AgentAction.Move:
+                descriptor = $"Move from room {step.roomNumber} to room {step.targetRoom}";
+                break;
+            case AgentAction.MakeCheck:
+                descriptor = $"Clear room {step.roomNumber} with {step.action.ToString()} check";
+                break;
+            case AgentAction.Wait:
+                descriptor = $"Wait ";
+                break;
+            case AgentAction.Exit:
+                descriptor = $"Exit site via room {step.roomNumber}";
+                break;
+            default:
+                descriptor = "Error, failed to load step";
+                break;
+
+        }
+
+        planningBoxTextLIst[selectedAgentId][index].text = $"{descriptor} for {step.baseTime} seconds";
+    }
+
+    public void RemovePlanStepFromDisplay()
+    {
+        GameObject.Destroy(planningBoxTextLIst[selectedAgentId][planningBoxTextLIst[selectedAgentId].Count - 1].gameObject);
+        planningBoxTextLIst[selectedAgentId].RemoveAt(planningBoxTextLIst[selectedAgentId].Count - 1);
+    }
+
+    public void ChangeSelecteStepId(int id)
+    {
+        selectedStepId = id;
+        //highlight selected step
+    }
+
+    public void StartMission()
+    {
+        if (team.Count < 3)
+        {
+            planStepReportingLog.text = "Cannot start mission, fewer than three agents selected.";
+        }
+        if (!GetRequiredStatus())
+        {
+            planStepReportingLog.text = "Cannot start mission, not all required rooms are marked to completion.";
+        }
+        if (!AgentsWillExtract())
+        {
+            planStepReportingLog.text = "Cannot start mission, not all agents will extract.";
+        }
+        //check if start is valid
+        SetUpMission();
+    }
+    public void SetUpMission()
+    {
+        missionPhaseObject.SetActive(true);
+        mapPanel.gameObject.transform.localPosition = new Vector3(-14, 107, 0);
+        this.gameObject.SetActive(false);
+        missionManager.NewMissionStartUp(team, planSteps);
+    }
+
+    private bool AgentsWillExtract()
+    {
+        bool willExtract = true;
+        for (int i = 0; i < planSteps.Count; i++)
+        {
+            if (planSteps[i][planSteps[i].Count - 1].action != AgentAction.Exit)
+            {
+                willExtract = false;
+            }
+        }
+        return willExtract;
+    }
+
+    private bool GetRequiredStatus()
+    {
+        bool status = true;
+        foreach ((int, bool) set in requiredRoomsAssigned)
+        {
+            if (set.Item2 == false)
+            {
+                status = false;
+            }
+        }
+        return status;
     }
 }

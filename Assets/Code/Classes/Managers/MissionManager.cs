@@ -54,8 +54,11 @@ public class MissionManager : MonoBehaviour
     TMPro.TextMeshProUGUI botAgentTaskField;
     [SerializeField]
     UnityEngine.UI.Scrollbar botAgentProgressBar;
+
     [SerializeField]
     GameObject missionPhaseContainer;
+    [SerializeField]
+    GameObject planningPhaseContainer;
 
     [SerializeField]
     public List<Agent> agents;
@@ -163,17 +166,18 @@ public class MissionManager : MonoBehaviour
         }
     }
 
-    private void NewMissionStartUp()
+    public void NewMissionStartUp(List<Agent> iAgents=null, List<List<PlanStep>> iPLanSteps = null)
     {
         Debug.Log("init start");
         securityLevel = 0;
-        timeSlider.value = 2;
+        timeSlider.value = 0;
         timeOnMission = 0;
-        map.init();
+        if (map == null) { map.init(); }
         mission = new Mission(map);
 
+        ResetRoomRequiredDisplay();
 
-        LoadAgents();
+        if (iAgents == null) { LoadAgents(); } else { agents = iAgents; }
 
         failureCount = new Dictionary<int, int>();
         foreach (Agent a in agents)
@@ -182,19 +186,24 @@ public class MissionManager : MonoBehaviour
         }
 
 
-        List<List<PlanStep>> foo = new List<List<PlanStep>>();
-        for (int i = 0; i < 3; i++)
+        if (iPLanSteps == null)
         {
+            List<List<PlanStep>> foo = new List<List<PlanStep>>();
+            for (int i = 0; i < 3; i++)
+            {
 
-            List<PlanStep> tempStepList = new List<PlanStep>();
-            tempStepList.Add(new PlanStep(AgentAction.Enter, -2, 1, 10));
-            tempStepList.Add(new PlanStep(AgentAction.MakeCheck, 1, -1, 10));
-            tempStepList.Add(new PlanStep(AgentAction.Move, 1, 2, 10));
-            tempStepList.Add(new PlanStep(AgentAction.Exit, 2, -1, 15));
-            foo.Add(tempStepList);
+                List<PlanStep> tempStepList = new List<PlanStep>();
+                tempStepList.Add(new PlanStep(AgentAction.Enter, -2, 1, 10));
+                tempStepList.Add(new PlanStep(AgentAction.MakeCheck, 1, -1, 10));
+                tempStepList.Add(new PlanStep(AgentAction.Move, 1, 2, 10));
+                tempStepList.Add(new PlanStep(AgentAction.Exit, 2, -1, 15));
+                foo.Add(tempStepList);
+            }
+
+            plan = new Plan(agents, foo);
         }
-
-        plan = new Plan(agents, foo);
+        else
+            plan = new Plan(agents, iPLanSteps);
         Debug.Log(JsonUtility.ToJson(plan));
 
 
@@ -203,13 +212,24 @@ public class MissionManager : MonoBehaviour
 
 
         missionPhaseContainer.SetActive(true);
+        initialized = true;
         Debug.Log("init finished.");
+    }
+
+    private void ResetRoomRequiredDisplay()
+    {
+        foreach (Room r in map.roomList)
+        {
+            r.DisplayRequiredStatus(false);
+        }
     }
 
     private void FinishMission()
     {
         missionPhaseContainer.SetActive(false);
-        initialized = false;
+        planningPhaseContainer.SetActive(true);
+
+        map.gameObject.transform.parent.transform.localPosition = new Vector3(297, 118, 0);
     }
 
     private void UpdateAgentPanel()
@@ -348,6 +368,7 @@ public class MissionManager : MonoBehaviour
         {
             SetNextAction(agent);
             attemptStatus = "succeeded";
+            map.roomList[roomNumber].DisplayRequiredStatus(true);
             statusString = $"\n{agent.name} {attemptStatus} a {check} check!";
         }
         else
