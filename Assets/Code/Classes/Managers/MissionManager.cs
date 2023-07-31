@@ -115,6 +115,7 @@ public class MissionManager : MonoBehaviour
 
         //missionPhaseContainer.SetActive(true);
         Debug.Log("init finished.");
+        //SaveAgents();
     }
 
     private void LoadAgents()
@@ -124,6 +125,16 @@ public class MissionManager : MonoBehaviour
         agents.Add(JsonUtility.FromJson<Agent>("{ \"statList\":[{ \"type\":0,\"level\":4},{ \"type\":1,\"level\":0},{ \"type\":2,\"level\":0},{ \"type\":0,\"level\":0},{ \"type\":4,\"level\":4},{ \"type\":5,\"level\":0}],\"name\":\"Noe\",\"id\":3, \"currentRoom\":-1,\"isInside\":false}"));
         agents.Add(JsonUtility.FromJson<Agent>("{ \"statList\":[{ \"type\":0,\"level\":0},{ \"type\":1,\"level\":3},{ \"type\":2,\"level\":0},{ \"type\":3,\"level\":2},{ \"type\":4,\"level\":0},{ \"type\":5,\"level\":4}],\"name\":\"Smoth\",\"id\":4, \"currentRoom\":-1,\"isInside\":false}"));
         Debug.Log(JsonUtility.ToJson(agents[1]));
+    }
+    private void SaveAgents()
+    {
+        foreach(Agent a in agents)
+        {
+            using (System.IO.StreamWriter myWriter = new System.IO.StreamWriter($"Assets/Agents/{a.name}.json"))
+            {
+                myWriter.Write(JsonUtility.ToJson(a));
+            }
+        }
     }
 
     void StartupUI()
