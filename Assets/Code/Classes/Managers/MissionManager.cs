@@ -70,9 +70,6 @@ public class MissionManager : MonoBehaviour
     bool initialized;
 
 
-
-
-
     // Start is called before the first frame update
     void Start()
     {
@@ -128,7 +125,7 @@ public class MissionManager : MonoBehaviour
     }
     private void SaveAgents()
     {
-        foreach(Agent a in agents)
+        foreach (Agent a in agents)
         {
             using (System.IO.StreamWriter myWriter = new System.IO.StreamWriter($"Assets/Agents/{a.name}.json"))
             {
@@ -177,7 +174,7 @@ public class MissionManager : MonoBehaviour
         }
     }
 
-    public void NewMissionStartUp(List<Agent> iAgents=null, List<List<PlanStep>> iPLanSteps = null)
+    public void NewMissionStartUp(List<Agent> iAgents = null, List<List<PlanStep>> iPLanSteps = null)
     {
         Debug.Log("init start");
         securityLevel = 0;
@@ -261,7 +258,7 @@ public class MissionManager : MonoBehaviour
         botAgentProgressBar.size = (float)GetProgressPercentage(agents[2]);
     }
 
-    private  bool AgentIsExtracted(Agent a)
+    private bool AgentIsExtracted(Agent a)
     {
         return (!a.isInside && plan.GetCurrentAction(a.id) == AgentAction.Exit);
     }
@@ -301,8 +298,18 @@ public class MissionManager : MonoBehaviour
 
     private Sprite GetSpriteForAgent(int id)
     {
-        return null;
+        switch (id)
+        {
+            case 0: return planningPhaseContainer.GetComponent<PlanningManager>().agent0Icon;
+            case 1: return planningPhaseContainer.GetComponent<PlanningManager>().agent1Icon;
+            case 2: return planningPhaseContainer.GetComponent<PlanningManager>().agent2Icon;
+            case 3: return planningPhaseContainer.GetComponent<PlanningManager>().agent3Icon;
+            case 4: return planningPhaseContainer.GetComponent<PlanningManager>().agent4Icon;
+            case 5: return planningPhaseContainer.GetComponent<PlanningManager>().agent5Icon;
+            default: return planningPhaseContainer.GetComponent<PlanningManager>().agent0Icon;
+        }
     }
+
 
     void AddTime(double timeElapsed)
     {
@@ -360,7 +367,16 @@ public class MissionManager : MonoBehaviour
     void MoveRooms(Agent agent, int targetRoom)
     {
         agent.currentRoom = targetRoom;
+        if (targetRoom > 0)
+        {
+            RevealHiddenRoom(targetRoom);
+        }
         SetNextAction(agent);
+    }
+    void RevealHiddenRoom(int roomId)
+    {
+        map.roomList[roomId].UpdatePlanningDescription(false);
+
     }
     void PerformCheck(Agent agent)
     {
@@ -428,7 +444,7 @@ public class MissionManager : MonoBehaviour
     }
     void VerifyRoomStatus(Agent a)
     {
-        if (mission.myMap.IsRoomCheckComplete(a.currentRoom) && plan.GetCurrentAction(a.id)==AgentAction.MakeCheck)
+        if (mission.myMap.IsRoomCheckComplete(a.currentRoom) && plan.GetCurrentAction(a.id) == AgentAction.MakeCheck)
         {
             actionLogField.text += $"\n{a.name}'s room was cleared by someone else. Moving to room {plan.GetNextStep(a.id).targetRoom}";
             SetNextAction(a);
@@ -439,11 +455,11 @@ public class MissionManager : MonoBehaviour
         //check if next action is move and if current room check is done. (this is in the event they arrive before the agent assigned to the task)
         //Possibley add option for player to determine which checks they will attempt, which they will wait for.
         bool canMove = false;
-        if (agent.currentRoom>0 ||  mission.myMap.IsRoomCheckComplete(agent.currentRoom))
+        if (agent.currentRoom > 0 || mission.myMap.IsRoomCheckComplete(agent.currentRoom))
         {
             canMove = true;
         }
-        if(plan.GetNextAction(agent.id)==AgentAction.Move && canMove == false)
+        if (plan.GetNextAction(agent.id) == AgentAction.Move && canMove == false)
         {
             CreatePlanStepFromCurrentRoom(agent);
         }
