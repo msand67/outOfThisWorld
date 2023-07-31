@@ -44,12 +44,15 @@ public class PlanningManager : MonoBehaviour
     int selectedAgentId;
     int selectedStepId;
 
+    string agentFolder = "Assets/Agents/";
+
     List<Agent> team;
     List<List<PlanStep>> planSteps;
     // Start is called before the first frame update
     void Start()
     {
         team = new List<Agent>();
+        agents = new List<Agent>();
         LoadAgents();
         LoadAgentPanels();
         selectedAgentId = -1;
@@ -129,12 +132,33 @@ public class PlanningManager : MonoBehaviour
     }
     private void LoadAgents()
     {
-        agents = new List<Agent>();
-        agents.Add(JsonUtility.FromJson<Agent>("{ \"statList\":[{ \"type\":0,\"level\":0},{ \"type\":1,\"level\":0},{ \"type\":2,\"level\":3},{ \"type\":3,\"level\":0},{ \"type\":4,\"level\":0},{ \"type\":5,\"level\":20}],\"name\":\"Murphius\",\"id\":2, \"currentRoom\":-1,\"isInside\":false,\"cost\":100000,\"roleDesc\":\"Fastest hands in the west..<br>--The Recruiter.\"}"));
-        agents.Add(JsonUtility.FromJson<Agent>("{ \"statList\":[{ \"type\":0,\"level\":4},{ \"type\":1,\"level\":0},{ \"type\":2,\"level\":0},{ \"type\":0,\"level\":0},{ \"type\":4,\"level\":4},{ \"type\":5,\"level\":0}],\"name\":\"Noe\",\"id\":3, \"currentRoom\":-1,\"isInside\":false,\"cost\":25000,\"roleDesc\":\"Beefy, Jogs in her spare time.<br>--The Recruiter\"}"));
-        agents.Add(JsonUtility.FromJson<Agent>("{ \"statList\":[{ \"type\":0,\"level\":0},{ \"type\":1,\"level\":3},{ \"type\":2,\"level\":0},{ \"type\":3,\"level\":2},{ \"type\":4,\"level\":0},{ \"type\":5,\"level\":4}],\"name\":\"Smoth\",\"id\":4, \"currentRoom\":-1,\"isInside\":false,\"cost\":25000,\"roleDesc\":\"Smart, decent at clearing a room.<br>--The Recruiter\"}"));
-        Debug.Log(JsonUtility.ToJson(agents[1]));
+
+        string[] fileList = System.IO.Directory.GetFiles(agentFolder);
+        foreach (string fName in fileList)
+        {
+            if (fName.Contains("json") && !fName.Contains("meta"))
+            {
+                using (System.IO.StreamReader sr = new System.IO.StreamReader(fName))
+                {
+                    agents.Add(JsonUtility.FromJson<Agent>(sr.ReadToEnd()));
+                }
+            }
+        }
+        LoadAgentPortraits();
     }
+
+    private void LoadAgentPortraits()
+    {
+        string[] fileList = System.IO.Directory.GetFiles(agentFolder);
+        foreach (string fName in fileList)
+        {
+            if (fName.Contains("png") && !fName.Contains("meta"))
+            {
+                //fetch image to portrait and update everywhere.
+            }
+        }
+    }
+
     private void LoadAgentPanels()
     {
         for (int i = 0; i < agentPanels.Count; i++)
