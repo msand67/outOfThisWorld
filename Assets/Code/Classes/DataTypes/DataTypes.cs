@@ -20,6 +20,7 @@ namespace dataStructures
     //Currently cut in half.
     public enum SecurityPenalty
     {
+        none = 0,
         low = 1,
         medium = 2,
         high = 3
@@ -43,7 +44,7 @@ namespace dataStructures
     }
     public enum CheckType
     {
-        Breach, Egghead, SmoothTalk, Gumshoe,  
+        Breach, Egghead, SmoothTalk, Gumshoe,
     }
 
     //first four used for checks, footwork and fastHands modify time to act.

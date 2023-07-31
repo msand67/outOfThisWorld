@@ -1,0 +1,146 @@
+
+	"0": {
+		"check": {
+			"type": 3,
+			"difficulty": 13,
+			"penalty": 0,
+			"isHidden": false,
+			"timeToExecute": 15,
+			"isRequired": true,
+			"isComplete": false
+		},
+		"isEntrance": false,
+		"textBox": {
+			"instanceID": 25004
+		},
+		"id": 0
+	}|
+	"1": {
+		"check": {
+			"type": 0,
+			"difficulty": 10,
+			"penalty": 2,
+			"isHidden": false,
+			"timeToExecute": 10.0,
+			"isRequired": false,
+			"isComplete": false
+		},
+		"isEntrance": true,
+		"textBox": {
+			"instanceID": 25154
+		},
+		"id": 1
+	}|
+	"2": {
+		"check": {
+			"type": 3,
+			"difficulty": 13,
+			"penalty": 0,
+			"isHidden": true,
+			"timeToExecute": 8,
+			"isRequired": false,
+			"isComplete": false
+		},
+		"isEntrance": false,
+		"textBox": {
+			"instanceID": 25428
+		},
+		"id": 2
+	}|
+	"3": {
+		"check": {
+			"type": 0,
+			"difficulty": 10,
+			"penalty": 2,
+			"isHidden": false,
+			"timeToExecute": 10.0,
+			"isRequired": true,
+			"isComplete": false
+		},
+		"isEntrance": false,
+		"textBox": {
+			"instanceID": 25082
+		},
+		"id": 3
+	}|
+	"4": {
+		"check": {
+			"type": 2,
+			"difficulty": 10,
+			"penalty": 2,
+			"isHidden": false,
+			"timeToExecute": 10.0,
+			"isRequired": false,
+			"isComplete": false
+		},
+		"isEntrance": false,
+		"textBox": {
+			"instanceID": 26068
+		},
+		"id": 4
+	}|
+	"5": {
+		"check": {
+			"type": 2,
+			"difficulty": 7,
+			"penalty": 0,
+			"isHidden": false,
+			"timeToExecute": 12,
+			"isRequired": false,
+			"isComplete": false
+		},
+		"isEntrance": true,
+		"textBox": {
+			"instanceID": 25558
+		},
+		"id": 5
+	}|
+	"6": {
+		"check": {
+			"type": 1,
+			"difficulty": 10,
+			"penalty": 2,
+			"isHidden": false,
+			"timeToExecute": 10.0,
+			"isRequired": false,
+			"isComplete": false
+		},
+		"isEntrance": false,
+		"textBox": {
+			"instanceID": 25816
+		},
+		"id": 6
+	}|
+	"7": {
+		"check": {
+			"type": 1,
+			"difficulty": 10,
+			"penalty": 0,
+			"isHidden": false,
+			"timeToExecute": 10,
+			"isRequired": false,
+			"isComplete": false
+		},
+		"isEntrance": false,
+		"textBox": {
+			"instanceID": 25324
+		},
+		"id": 7
+	}|
+	"8": {
+		"check": {
+			"type": 1,
+			"difficulty": 16,
+			"penalty": 2,
+			"isHidden": true,
+			"timeToExecute": 4,
+			"isRequired": true,
+			"isComplete": false
+		},
+		"isEntrance": false,
+		"textBox": {
+			"instanceID": 25780
+		},
+		"id": 8
+	}
+}

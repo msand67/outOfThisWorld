@@ -13,6 +13,9 @@ namespace dataStructures
         public int id;
         public int currentRoom;
         public bool isInside;
+        public int cost;
+        public string roleDesc;
+        public Sprite sprite;
 
         public Agent()
         {
@@ -23,19 +26,23 @@ namespace dataStructures
             statList.Add(new Stat(StatType.Gumshoe, 0));
             statList.Add(new Stat(StatType.Footwork, 0));
             statList.Add(new Stat(StatType.FastHands, 0));
+            cost = 15000;
+            roleDesc = "Look, he's cheap and sometimes does stuff. What more do you want?/n--The Recruiter";
 
             name = "Murphy";
             id = -1;
             currentRoom = -1;
             isInside = false;
         }
-        public Agent(List<Stat> iStatList, string iName, int iId, int iCurrentRoom, bool iIsInside)
+        public Agent(List<Stat> iStatList, string iName, int iId, int iCurrentRoom, bool iIsInside, int iCost, string iRoleDesc)
         {
             statList = iStatList;
             name = iName;
             id = iId;
             currentRoom = iCurrentRoom;
             isInside = iIsInside;
+            cost = iCost;
+            roleDesc = iRoleDesc;
         }
         public int GetCheckMod(CheckType type)
         {
@@ -72,6 +79,44 @@ namespace dataStructures
 
             }
             return statlist;
+        }
+
+        internal string GetStatNums()
+        {
+            string statNums = "";
+            foreach(Stat s in statList)
+            {
+                statNums += $"{s.level}\n";
+            }
+            return statNums;
+        }
+
+        internal string GetStatText()
+        {
+
+            string statNums = "";
+            foreach (Stat s in statList)
+            {
+                statNums += $"{s.type.ToString()}\n";
+            }
+            return statNums;
+        }
+        internal string GetStatAbrv()
+        {
+            return "B\nE\nST\nG\nF\nFH";
+        }
+
+        internal string GetDescriptionText()
+        {
+            string descText = "";
+            descText += $"Name: {name}";
+            descText += $"\nCost: {cost}";
+
+            return descText;
+        }
+        internal int GetCost()
+        {
+            return cost;
         }
     }
 
