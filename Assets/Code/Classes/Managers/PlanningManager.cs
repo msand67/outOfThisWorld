@@ -42,7 +42,7 @@ public class PlanningManager : MonoBehaviour
     public Sprite agent5Icon;
 
 
-    int cash=100000;
+    public int cash = 100000;
     int cost = 0;
 
 
@@ -229,7 +229,7 @@ public class PlanningManager : MonoBehaviour
 
     }
 
-    private void UpdateMissionCostText()
+    public void UpdateMissionCostText()
     {
         cashText.text = $"Goal: Retire\n${cash}/$500000\nMission Cost:\n{cost}";
     }
@@ -265,6 +265,44 @@ public class PlanningManager : MonoBehaviour
                 t.text = a.name;
             }
         }
+
+    }
+
+    internal void EarnMoney(double baseReward)
+    {
+        cash += (int)baseReward;
+        ClearForNewPlan();
+        mapPanel.gameObject.SetActive(true);
+    }
+    void ClearForNewPlan()
+    {
+        planSteps = new List<List<PlanStep>>();
+        planSteps.Add(new List<PlanStep>());
+        planSteps.Add(new List<PlanStep>());
+        planSteps.Add(new List<PlanStep>());
+        selectedAgentId = 0;
+        foreach (TMPro.TextMeshProUGUI t in planningBoxTextLIst[selectedAgentId])
+        {
+            t.gameObject.SetActive(true);
+            Destroy(t.gameObject);
+        }
+        selectedAgentId = 1;
+        foreach (TMPro.TextMeshProUGUI t in planningBoxTextLIst[selectedAgentId])
+        {
+            t.gameObject.SetActive(true);
+            Destroy(t.gameObject);
+        }
+        selectedAgentId = 2;
+        foreach (TMPro.TextMeshProUGUI t in planningBoxTextLIst[selectedAgentId])
+        {
+            t.gameObject.SetActive(true);
+            Destroy(t.gameObject);
+        }
+        for(int i =0; i< planningBoxContent.childCount; i++)
+        {
+            Destroy(planningBoxContent.GetChild(i));
+        }
+
 
     }
 
