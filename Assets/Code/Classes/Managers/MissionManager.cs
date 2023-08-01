@@ -12,6 +12,10 @@ public class MissionManager : MonoBehaviour
     public Mission mission { get; set; }
     public double timeOnMission { get; set; }
     public int securityLevel { get; set; }
+    bool success = true;
+
+    public GameObject missionLostDisplay;
+    public TMPro.TextMeshProUGUI missionFinishText;
 
     [SerializeField]
     UnityEngine.UI.Slider timeSlider;
@@ -60,6 +64,11 @@ public class MissionManager : MonoBehaviour
     [SerializeField]
     GameObject planningPhaseContainer;
 
+    public RectTransform agentMini0;
+    public RectTransform agentMini1;
+    public RectTransform agentMini2;
+
+
     [SerializeField]
     public List<Agent> agents;
 
@@ -68,9 +77,6 @@ public class MissionManager : MonoBehaviour
 
     Dictionary<int, int> failureCount;
     bool initialized;
-
-
-
 
 
     // Start is called before the first frame update
@@ -128,7 +134,7 @@ public class MissionManager : MonoBehaviour
     }
     private void SaveAgents()
     {
-        foreach(Agent a in agents)
+        foreach (Agent a in agents)
         {
             using (System.IO.StreamWriter myWriter = new System.IO.StreamWriter($"Assets/Agents/{a.name}.json"))
             {
@@ -168,7 +174,7 @@ public class MissionManager : MonoBehaviour
             if (agents.TrueForAll(AgentIsExtracted))
             {
                 Debug.Log("All agents extracted.");
-                FinishMission();
+                WinMission();
                 return;
             }
             UpdatePlanSteps(timeElapsed);
@@ -177,7 +183,7 @@ public class MissionManager : MonoBehaviour
         }
     }
 
-    public void NewMissionStartUp(List<Agent> iAgents=null, List<List<PlanStep>> iPLanSteps = null)
+    public void NewMissionStartUp(List<Agent> iAgents = null, List<List<PlanStep>> iPLanSteps = null)
     {
         Debug.Log("init start");
         securityLevel = 0;
@@ -234,34 +240,77 @@ public class MissionManager : MonoBehaviour
             r.DisplayRequiredStatus(false);
         }
     }
-
-    private void FinishMission()
+    private void LoseMission()
     {
+        timeSlider.value = 0;
+        success = false;
+        map.transform.parent.gameObject.SetActive(false);
+        missionLostDisplay.gameObject.SetActive(true);
+        if (planningPhaseContainer.GetComponent<PlanningManager>().cash < 0)
+        {
+            missionFinishText.text = "Oh no! You couldn't get away with the goods. Also, you are now bankrupt so please return to the main menu. ";
+            missionFinishText.transform.parent.GetComponentInChildren<UnityEngine.UI.Button>().onClick.RemoveAllListeners();
+            missionFinishText.transform.parent.GetComponentInChildren<UnityEngine.UI.Button>().onClick.AddListener(BackToMenu);
+
+        }
+        else
+        {
+            missionFinishText.text = "Oh no! Your agents were detected before they could extract with the goods. You'll have to try again!";
+        }
+    }
+
+    public void BackToMenu()
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadScene("Landing Scene");
+    }
+
+    private void WinMission()
+    {
+
+        timeSlider.value = 0;
+        success = true;
+        map.transform.parent.gameObject.SetActive(false);
+        missionLostDisplay.gameObject.SetActive(true);
+        missionFinishText.text = $"Success!! Your agents got the goods, and you got the cash. ${mission.baseReward} to be exact!";
+    }
+
+    public void FinishMission()
+    {
+        agentMini0.SetParent(this.transform);
+        agentMini1.SetParent(this.transform);
+        agentMini2.SetParent(this.transform);
         missionPhaseContainer.SetActive(false);
         planningPhaseContainer.SetActive(true);
 
+        if (success)
+        {
+            planningPhaseContainer.GetComponent<PlanningManager>().EarnMoney(mission.baseReward);
+        }
+        planningPhaseContainer.GetComponent<PlanningManager>().EarnMoney(0);
+        planningPhaseContainer.GetComponent<PlanningManager>().UpdateMissionCostText();
+        map.gameObject.SetActive(true);
         map.gameObject.transform.parent.transform.localPosition = new Vector3(297, 118, 0);
     }
 
     private void UpdateAgentPanel()
     {
-        topAgentPortrait.sprite = GetSpriteForAgent(agents[0].id);
+        agentMini0.GetComponent<UnityEngine.UI.Image>().sprite = topAgentPortrait.sprite = GetSpriteForAgent(agents[0].id);
         topAgentStatField.SetText($"{agents[0].name}\nBest Stat: {agents[0].GetBestStat()}\nFailures: {failureCount[agents[0].id]}");
         topAgentTaskField.SetText(GetAgentActionDescription(agents[0]));
         topAgentProgressBar.size = (float)GetProgressPercentage(agents[0]);
 
-        midAgentPortrait.sprite = GetSpriteForAgent(agents[1].id);
+        agentMini1.GetComponent<UnityEngine.UI.Image>().sprite = midAgentPortrait.sprite = GetSpriteForAgent(agents[1].id);
         midAgentStatField.SetText($"{agents[1].name}\nBest Stat: {agents[1].GetBestStat()}\nFailures: {failureCount[agents[1].id]}");
         midAgentTaskField.SetText(GetAgentActionDescription(agents[1]));
         midAgentProgressBar.size = (float)GetProgressPercentage(agents[1]);
 
-        botAgentPortrait.sprite = GetSpriteForAgent(agents[2].id);
+        agentMini2.GetComponent<UnityEngine.UI.Image>().sprite = botAgentPortrait.sprite = GetSpriteForAgent(agents[2].id);
         botAgentStatField.SetText($"{agents[2].name}\nBest Stat: {agents[2].GetBestStat()}\nFailures: {failureCount[agents[2].id]}");
         botAgentTaskField.SetText(GetAgentActionDescription(agents[2]));
         botAgentProgressBar.size = (float)GetProgressPercentage(agents[2]);
     }
 
-    private  bool AgentIsExtracted(Agent a)
+    private bool AgentIsExtracted(Agent a)
     {
         return (!a.isInside && plan.GetCurrentAction(a.id) == AgentAction.Exit);
     }
@@ -301,8 +350,18 @@ public class MissionManager : MonoBehaviour
 
     private Sprite GetSpriteForAgent(int id)
     {
-        return null;
+        switch (id)
+        {
+            case 0: return planningPhaseContainer.GetComponent<PlanningManager>().agent0Icon;
+            case 1: return planningPhaseContainer.GetComponent<PlanningManager>().agent1Icon;
+            case 2: return planningPhaseContainer.GetComponent<PlanningManager>().agent2Icon;
+            case 3: return planningPhaseContainer.GetComponent<PlanningManager>().agent3Icon;
+            case 4: return planningPhaseContainer.GetComponent<PlanningManager>().agent4Icon;
+            case 5: return planningPhaseContainer.GetComponent<PlanningManager>().agent5Icon;
+            default: return planningPhaseContainer.GetComponent<PlanningManager>().agent0Icon;
+        }
     }
+
 
     void AddTime(double timeElapsed)
     {
@@ -319,7 +378,11 @@ public class MissionManager : MonoBehaviour
     {
         securityLevel = (int)System.Math.Floor(excessTime / (int)mission.securityInterval) + 1;
         securityLevelField.SetText($"Security Level: {securityLevel}");
+        if (securityLevel >= 5) { LoseMission(); }
     }
+
+
+
     void UpdatePlanSteps(double timeElapsed)
     {
         foreach (Agent a in agents)
@@ -360,7 +423,21 @@ public class MissionManager : MonoBehaviour
     void MoveRooms(Agent agent, int targetRoom)
     {
         agent.currentRoom = targetRoom;
+        if (targetRoom > 0)
+        {
+            RevealHiddenRoom(targetRoom);
+        }
+        for (int i = 0; i < 3; i++)
+        {
+
+            if (agents[i].id == agent.id) { MoveAgentMini(i, targetRoom); }
+        }
         SetNextAction(agent);
+    }
+    void RevealHiddenRoom(int roomId)
+    {
+        map.roomList[roomId].UpdatePlanningDescription(false);
+
     }
     void PerformCheck(Agent agent)
     {
@@ -393,6 +470,28 @@ public class MissionManager : MonoBehaviour
         actionLogField.text += (statusString);
         //report success.
     }
+    public void MoveAgentMini(int agentId, int roomId)
+    {
+        switch (agentId)
+        {
+            case 0:
+                agentMini0.SetParent(map.roomList[roomId].transform);
+                agentMini0.transform.localPosition = new Vector3(0, 0, 0);
+                break;
+            case 1:
+                agentMini1.SetParent(map.roomList[roomId].transform);
+                agentMini1.transform.localPosition = new Vector3(0, 0, 0);
+                break;
+            case 2:
+                agentMini2.SetParent(map.roomList[roomId].transform);
+                agentMini2.transform.localPosition = new Vector3(0, 0, 0);
+                break;
+            default:
+                break;
+        }
+    }
+
+
 
     double GetProgressPercentage(Agent a)
     {
@@ -428,7 +527,7 @@ public class MissionManager : MonoBehaviour
     }
     void VerifyRoomStatus(Agent a)
     {
-        if (mission.myMap.IsRoomCheckComplete(a.currentRoom) && plan.GetCurrentAction(a.id)==AgentAction.MakeCheck)
+        if (mission.myMap.IsRoomCheckComplete(a.currentRoom) && plan.GetCurrentAction(a.id) == AgentAction.MakeCheck)
         {
             actionLogField.text += $"\n{a.name}'s room was cleared by someone else. Moving to room {plan.GetNextStep(a.id).targetRoom}";
             SetNextAction(a);
@@ -439,11 +538,11 @@ public class MissionManager : MonoBehaviour
         //check if next action is move and if current room check is done. (this is in the event they arrive before the agent assigned to the task)
         //Possibley add option for player to determine which checks they will attempt, which they will wait for.
         bool canMove = false;
-        if (agent.currentRoom>0 ||  mission.myMap.IsRoomCheckComplete(agent.currentRoom))
+        if (agent.currentRoom > 0 || mission.myMap.IsRoomCheckComplete(agent.currentRoom))
         {
             canMove = true;
         }
-        if(plan.GetNextAction(agent.id)==AgentAction.Move && canMove == false)
+        if (plan.GetNextAction(agent.id) == AgentAction.Move && canMove == false)
         {
             CreatePlanStepFromCurrentRoom(agent);
         }

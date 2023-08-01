@@ -31,10 +31,23 @@ public class PlanningManager : MonoBehaviour
 
     public TMPro.TextMeshProUGUI roomDetailsBox;
 
-
-
     private List<(int, bool)> requiredRoomsAssigned;
     private List<(int, bool)> hiddenRoomsRevealed;
+
+    public Sprite agent0Icon;
+    public Sprite agent1Icon;
+    public Sprite agent2Icon;
+    public Sprite agent3Icon;
+    public Sprite agent4Icon;
+    public Sprite agent5Icon;
+
+
+    public int cash = 100000;
+    int cost = 0;
+
+
+    public TMPro.TextMeshProUGUI cashText;
+
 
     [SerializeField]
     List<Agent> agents;
@@ -44,13 +57,14 @@ public class PlanningManager : MonoBehaviour
     int selectedAgentId;
     int selectedStepId;
 
-    string agentFolder = "Assets/Agents/";
+    string agentFolder = "/Agents/";
 
     List<Agent> team;
     List<List<PlanStep>> planSteps;
     // Start is called before the first frame update
     void Start()
     {
+        UpdateMissionCostText();
         team = new List<Agent>();
         agents = new List<Agent>();
         LoadAgents();
@@ -94,6 +108,20 @@ public class PlanningManager : MonoBehaviour
 
     }
 
+    internal Sprite GetImageByAgentId(int id)
+    {
+        switch (id)
+        {
+            case 0: return agent0Icon;
+            case 1: return agent1Icon;
+            case 2: return agent2Icon;
+            case 3: return agent3Icon;
+            case 4: return agent4Icon;
+            case 5: return agent5Icon;
+            default: return agent0Icon;
+        }
+    }
+
     internal void DisplayRoomDetails(Room room)
     {
         bool hidden = false;
@@ -133,29 +161,26 @@ public class PlanningManager : MonoBehaviour
     private void LoadAgents()
     {
 
-        string[] fileList = System.IO.Directory.GetFiles(agentFolder);
+        string[] fileList = System.IO.Directory.GetFiles(Application.streamingAssetsPath + agentFolder);
+        List<Agent> tempAgents = new List<Agent>();
         foreach (string fName in fileList)
         {
             if (fName.Contains("json") && !fName.Contains("meta"))
             {
                 using (System.IO.StreamReader sr = new System.IO.StreamReader(fName))
                 {
-                    agents.Add(JsonUtility.FromJson<Agent>(sr.ReadToEnd()));
+                    tempAgents.Add(JsonUtility.FromJson<Agent>(sr.ReadToEnd()));
                 }
             }
         }
-        LoadAgentPortraits();
-    }
-
-    private void LoadAgentPortraits()
-    {
-        string[] fileList = System.IO.Directory.GetFiles(agentFolder);
-        foreach (string fName in fileList)
+        for (int i = 0; i < tempAgents.Count; i++)
         {
-            if (fName.Contains("png") && !fName.Contains("meta"))
-            {
-                //fetch image to portrait and update everywhere.
-            }
+            for (int j = 0; i < tempAgents.Count; j++)
+                if (tempAgents[j].id == i)
+                {
+                    agents.Add(tempAgents[j]);
+                    break;
+                }
         }
     }
 
@@ -193,6 +218,8 @@ public class PlanningManager : MonoBehaviour
             button.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "Remove agent";
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(delegate { RemoveAgentFromTeam(agents[agentIndex].id); });
+            cost += agents[agentIndex].cost;
+            UpdateMissionCostText();
             AddAgentToTeamDisplay(agentIndex);
         }
         if (team.Count >= 3)
@@ -200,6 +227,11 @@ public class PlanningManager : MonoBehaviour
             DisableAddButtons();
         }
 
+    }
+
+    public void UpdateMissionCostText()
+    {
+        cashText.text = $"Goal: Retire\n${cash}/$500000\nMission Cost:\n{cost}";
     }
 
     private void AddAgentToTeamDisplay(int agentIndex)
@@ -219,7 +251,7 @@ public class PlanningManager : MonoBehaviour
             default:
                 break;
         }
-        targetCard.GetComponentInChildren<UnityEngine.UI.Image>().sprite = agents[agentIndex].sprite;
+        targetCard.Find("Image").GetComponent<UnityEngine.UI.Image>().sprite = GetImageByAgentId(agentIndex);
         Agent a = agents[agentIndex];
         string statString = $"B  {a.statList[0].level},  F  {a.statList[4].level}\nE  {a.statList[1].level},  FH {a.statList[5].level}\nST {a.statList[2].level}\nG {a.statList[3].level}";
         foreach (TMPro.TextMeshProUGUI t in targetCard.GetComponentsInChildren<TMPro.TextMeshProUGUI>())
@@ -236,12 +268,53 @@ public class PlanningManager : MonoBehaviour
 
     }
 
+    internal void EarnMoney(double baseReward)
+    {
+        cash += (int)baseReward;
+        ClearForNewPlan();
+        mapPanel.gameObject.SetActive(true);
+    }
+    void ClearForNewPlan()
+    {
+        planSteps = new List<List<PlanStep>>();
+        planSteps.Add(new List<PlanStep>());
+        planSteps.Add(new List<PlanStep>());
+        planSteps.Add(new List<PlanStep>());
+        selectedAgentId = 0;
+        foreach (TMPro.TextMeshProUGUI t in planningBoxTextLIst[selectedAgentId])
+        {
+            t.gameObject.SetActive(true);
+            Destroy(t.gameObject);
+        }
+        selectedAgentId = 1;
+        foreach (TMPro.TextMeshProUGUI t in planningBoxTextLIst[selectedAgentId])
+        {
+            t.gameObject.SetActive(true);
+            Destroy(t.gameObject);
+        }
+        selectedAgentId = 2;
+        foreach (TMPro.TextMeshProUGUI t in planningBoxTextLIst[selectedAgentId])
+        {
+            t.gameObject.SetActive(true);
+            Destroy(t.gameObject);
+        }
+        for(int i =0; i< planningBoxContent.childCount; i++)
+        {
+            Destroy(planningBoxContent.GetChild(i));
+        }
+
+
+    }
+
     public void RemoveAgentFromTeam(int agentId)
     {
+        EnableAddButtons();
         for (int i = 0; i < team.Count; i++)
         {
             if (team[i].id == agentId)
             {
+                cost -= team[i].cost;
+                UpdateMissionCostText();
                 team.RemoveAt(i);
                 int j = GetIndexOfAgent(agentId);
                 //change button to add instead of remove agent.
@@ -252,10 +325,6 @@ public class PlanningManager : MonoBehaviour
                 RemoveAgentFromDisplay(j, i);
                 break;
             }
-        }
-        if (team.Count < 3)
-        {
-            EnableAddButtons();
         }
 
 
@@ -312,7 +381,8 @@ public class PlanningManager : MonoBehaviour
         {
             t.text = "";
         }
-        targetCard.GetComponentInChildren<UnityEngine.UI.Image>().sprite = null;
+
+        targetCard.Find("Image").GetComponent<UnityEngine.UI.Image>().sprite = null;
     }
 
     private void ShiftAgentCardLeft(RectTransform targetCard, RectTransform shiftCard)
@@ -328,7 +398,8 @@ public class PlanningManager : MonoBehaviour
                 }
             }
         }
-        targetCard.GetComponentInChildren<UnityEngine.UI.Image>().sprite = shiftCard.GetComponentInChildren<UnityEngine.UI.Image>().sprite;
+
+        targetCard.Find("Image").GetComponent<UnityEngine.UI.Image>().sprite = shiftCard.Find("Image").GetComponent<UnityEngine.UI.Image>().sprite;
     }
 
     public int GetIndexOfAgent(int agentId)
@@ -359,7 +430,7 @@ public class PlanningManager : MonoBehaviour
     {
         foreach (Transform t in agentPanels)
         {
-            t.GetComponentInChildren<UnityEngine.UI.Button>().gameObject.SetActive(true);
+            t.Find("AddRemoveButton").GetComponent<UnityEngine.UI.Button>().gameObject.SetActive(true);
         }
     }
 
@@ -624,6 +695,7 @@ public class PlanningManager : MonoBehaviour
     }
     public void SetUpMission()
     {
+        cash -= cost;
         missionPhaseObject.SetActive(true);
         mapPanel.gameObject.transform.localPosition = new Vector3(-14, 107, 0);
         this.gameObject.SetActive(false);
@@ -654,5 +726,9 @@ public class PlanningManager : MonoBehaviour
             }
         }
         return status;
+    }
+    public void BackToMenu()
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadScene("Landing Scene");
     }
 }

@@ -22,7 +22,7 @@ namespace dataStructures
             gracePeriod = 120;
             securityInterval = SecurityInterval.medium;
             penalty = SecurityPenalty.medium;
-            baseReward = 100000;
+            baseReward = 150000;
             bonusReward = 25000;
             bonusCriteria = BonusCriteria.TimeConstraint;
             List<ActionList> tempPlanSteps = new List<ActionList>();
