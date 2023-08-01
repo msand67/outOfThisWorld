@@ -17,6 +17,10 @@ public class MissionManager : MonoBehaviour
     public GameObject missionLostDisplay;
     public TMPro.TextMeshProUGUI missionFinishText;
 
+    public RectTransform Entrance1;
+
+    public RectTransform Entrance2;
+
     [SerializeField]
     UnityEngine.UI.Slider timeSlider;
     [SerializeField]
@@ -156,6 +160,64 @@ public class MissionManager : MonoBehaviour
         UpdateAgentPanel();
     }
 
+    private void SetStartingAgentPositions()
+    {
+        for (int i = 0; i < 3; i++)
+        {
+
+            double timeToMove = agents[i].ComputeTime(plan.GetCurrentStep(i).baseTime, AgentAction.Enter);
+            if (plan.GetCurrentStep(i).targetRoom == 1)
+            {
+                if (i == 0)
+                {
+                    agentMini0.SetParent(Entrance1);
+                    agentMini0.localPosition = new Vector3(0, 0, 0);
+                    MoveAgentMini(i, plan.GetCurrentStep(i).targetRoom);
+                    StartCoroutine(MoveFromTo(agentMini0, timeToMove));
+                }
+                else if (i == 1)
+                {
+                    agentMini1.SetParent(Entrance1);
+                    agentMini1.localPosition = new Vector3(0, 0, 0);
+                    StartCoroutine(MoveFromTo(agentMini1, timeToMove));
+                    MoveAgentMini(i, plan.GetCurrentStep(i).targetRoom);
+                }
+                else
+                {
+                    agentMini2.SetParent(Entrance1);
+                    agentMini2.localPosition = new Vector3(0, 0, 0);
+                    StartCoroutine(MoveFromTo(agentMini2, timeToMove));
+                    MoveAgentMini(i, plan.GetCurrentStep(i).targetRoom);
+                }
+            }
+            else
+            {
+
+                if (i == 0)
+                {
+                    agentMini0.SetParent(Entrance2);
+                    agentMini0.localPosition = new Vector3(0, 0, 0);
+                    StartCoroutine(MoveFromTo(agentMini0, timeToMove));
+                    MoveAgentMini(i, plan.GetCurrentStep(i).targetRoom);
+                }
+                else if (i == 1)
+                {
+                    agentMini1.SetParent(Entrance2);
+                    agentMini1.localPosition = new Vector3(0, 0, 0);
+                    StartCoroutine(MoveFromTo(agentMini1, timeToMove));
+                    MoveAgentMini(i, plan.GetCurrentStep(i).targetRoom);
+                }
+                else
+                {
+                    agentMini2.SetParent(Entrance2);
+                    agentMini2.localPosition = new Vector3(0, 0, 0);
+                    StartCoroutine(MoveFromTo(agentMini2, timeToMove));
+                    MoveAgentMini(i, plan.GetCurrentStep(i).targetRoom);
+                }
+            }
+        }
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -229,6 +291,8 @@ public class MissionManager : MonoBehaviour
 
 
         missionPhaseContainer.SetActive(true);
+
+        SetStartingAgentPositions();
         initialized = true;
         Debug.Log("init finished.");
     }
@@ -418,6 +482,15 @@ public class MissionManager : MonoBehaviour
             default:
                 break;
         }
+        if (plan.GetCurrentAction(a.id) == AgentAction.Move)
+        {
+            MoveAgentMini(a.id, plan.GetCurrentStep(a.id).targetRoom);
+        }
+        if (plan.GetCurrentAction(a.id) == AgentAction.Exit)
+        {
+            MoveAgentMini(a.id, plan.GetCurrentStep(a.id).targetRoom);
+
+        }
     }
 
     void MoveRooms(Agent agent, int targetRoom)
@@ -426,11 +499,6 @@ public class MissionManager : MonoBehaviour
         if (targetRoom > 0)
         {
             RevealHiddenRoom(targetRoom);
-        }
-        for (int i = 0; i < 3; i++)
-        {
-
-            if (agents[i].id == agent.id) { MoveAgentMini(i, targetRoom); }
         }
         SetNextAction(agent);
     }
@@ -472,23 +540,62 @@ public class MissionManager : MonoBehaviour
     }
     public void MoveAgentMini(int agentId, int roomId)
     {
+        double timeToMove = agents[agentId].ComputeTime(plan.GetCurrentStep(agentId).baseTime, AgentAction.Move);
         switch (agentId)
         {
             case 0:
-                agentMini0.SetParent(map.roomList[roomId].transform);
-                agentMini0.transform.localPosition = new Vector3(0, 0, 0);
+                if (roomId < 0) { agentMini0.SetParent(GetExitTarget(agentId)); }
+                else
+                {
+                    agentMini0.SetParent(map.roomList[roomId].transform);
+                }
+                StartCoroutine(MoveFromTo(agentMini0, timeToMove));
                 break;
             case 1:
-                agentMini1.SetParent(map.roomList[roomId].transform);
-                agentMini1.transform.localPosition = new Vector3(0, 0, 0);
+                if (roomId < 0) { agentMini1.SetParent(GetExitTarget(agentId)); }
+                else
+                {
+                    agentMini1.SetParent(map.roomList[roomId].transform);
+                }
+                StartCoroutine(MoveFromTo(agentMini1, timeToMove));
                 break;
             case 2:
-                agentMini2.SetParent(map.roomList[roomId].transform);
-                agentMini2.transform.localPosition = new Vector3(0, 0, 0);
+                if (roomId < 0) { agentMini2.SetParent(GetExitTarget(agentId)); }
+                else
+                {
+                    agentMini2.SetParent(map.roomList[roomId].transform);
+                }
+                StartCoroutine(MoveFromTo(agentMini2, timeToMove));
                 break;
             default:
                 break;
         }
+    }
+
+    private Transform GetExitTarget(int agentId)
+    {
+        if (agents[agentId].currentRoom == 1)
+        {
+            return Entrance1;
+        }
+        else
+        {
+            return Entrance2;
+        }
+    }
+
+    IEnumerator MoveFromTo(RectTransform myIcon, double timeToMove)
+    {
+        Vector3 start = myIcon.localPosition;
+        double timeSpent = 0;
+        while ((timeSpent / timeToMove) < 1)
+        {
+            timeSpent += Time.deltaTime * (timeSlider.value / 2); ;
+            myIcon.localPosition = Vector3.Lerp(start, new Vector3(0, 0, 0), (float)(timeSpent / timeToMove));
+            yield return null;
+        }
+        myIcon.localPosition = new Vector3(0, 0, 0);
+        yield return null;
     }
 
 
@@ -531,12 +638,13 @@ public class MissionManager : MonoBehaviour
         {
             actionLogField.text += $"\n{a.name}'s room was cleared by someone else. Moving to room {plan.GetNextStep(a.id).targetRoom}";
             SetNextAction(a);
+            MoveAgentMini(a.id, plan.GetCurrentStep(a.id).targetRoom);
         }
     }
     void SetNextAction(Agent agent)
     {
         //check if next action is move and if current room check is done. (this is in the event they arrive before the agent assigned to the task)
-        //Possibley add option for player to determine which checks they will attempt, which they will wait for.
+        //Possibly add option for player to determine which checks they will attempt, which they will wait for.
         bool canMove = false;
         if (agent.currentRoom > 0 || mission.myMap.IsRoomCheckComplete(agent.currentRoom))
         {
