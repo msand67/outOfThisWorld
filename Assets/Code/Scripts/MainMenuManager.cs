@@ -18,7 +18,7 @@ public class MainMenuManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        tutorialText.Add("Welcome to the game: Gotta get out of this world!\n You are a corporate middleman who has grown tired of your mundane life. As such, you have used an assortment of paper in your office to create a life of a high profile corporate spy!");
+        tutorialText.Add("Welcome to the game: Gotta get out of this world!\n You are a corporate middleman who has grown tired of your mundane life. As such, you have used an assortment of paper in your office to create a pretend life of a high profile corporate spy!");
         tutorialText.Add("On this screen you will assembe your team. You can have three agents per mission, add three below, then click on \"Team Select\"");
         tutorialText.Add("Here you must create a plan for each agent. They will need to enter the job site. Then you can right click a room to sent them to it. Rooms that are red are your target, they will turn blue when they are being completed by someone. Afterward, right click adjacent rooms until your agent can exit.\nThe mission ends when all agents are extracted and the required rooms are done.");
         tutorialText.Add("If you need to redo some planning, please use the controls here. When you are ready, Start Mission!\n(You can left click on a room for details in the bottom right!)");

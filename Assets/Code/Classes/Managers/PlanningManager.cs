@@ -57,7 +57,7 @@ public class PlanningManager : MonoBehaviour
     int selectedAgentId;
     int selectedStepId;
 
-    string agentFolder = "Assets/Agents/";
+    string agentFolder = "/Agents/";
 
     List<Agent> team;
     List<List<PlanStep>> planSteps;
@@ -161,7 +161,7 @@ public class PlanningManager : MonoBehaviour
     private void LoadAgents()
     {
 
-        string[] fileList = System.IO.Directory.GetFiles(agentFolder);
+        string[] fileList = System.IO.Directory.GetFiles(Application.streamingAssetsPath + agentFolder);
         List<Agent> tempAgents = new List<Agent>();
         foreach (string fName in fileList)
         {
