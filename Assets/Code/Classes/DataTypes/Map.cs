@@ -19,7 +19,7 @@ namespace dataStructures
         string mapImageLocation = "mapImage.png";
         string roomDataFile = "roomData_";
 
-        string mapDataPath = "Assets/MapData/";
+        string mapDataPath = "/MapData/";
 
 
 
@@ -131,7 +131,7 @@ namespace dataStructures
 
         private void FetchDataFromFile(int id, int roomCount)
         {
-            string myFolder = mapDataPath + $"map_{id}/";
+            string myFolder = Application.streamingAssetsPath + mapDataPath + $"map_{id}/";
             //fetch image here
             //read from file into strings to populate through functions.
             PopulateRoomsFromJson(myFolder, roomCount);
