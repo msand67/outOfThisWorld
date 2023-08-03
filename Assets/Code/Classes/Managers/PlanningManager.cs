@@ -298,10 +298,17 @@ public class PlanningManager : MonoBehaviour
             t.gameObject.SetActive(true);
             Destroy(t.gameObject);
         }
-        for(int i =0; i< planningBoxContent.childCount; i++)
+        for (int i = 0; i < planningBoxContent.childCount; i++)
         {
             Destroy(planningBoxContent.GetChild(i));
         }
+        planningBoxTextLIst = new List<List<TMPro.TextMeshProUGUI>>();
+        planningBoxTextLIst.Add(new List<TMPro.TextMeshProUGUI>());
+        planningBoxTextLIst.Add(new List<TMPro.TextMeshProUGUI>());
+        planningBoxTextLIst.Add(new List<TMPro.TextMeshProUGUI>());
+
+
+
 
 
     }
@@ -610,6 +617,8 @@ public class PlanningManager : MonoBehaviour
             RemovePlanStep();
             planStepReportingLog.text = $"{team[selectedAgentId].name}'s plan erased.";
         }
+        planSteps[selectedAgentId] = new List<PlanStep>();
+        planningBoxTextLIst[selectedAgentId] = new List<TMPro.TextMeshProUGUI>();
         team[selectedAgentId].isInside = false;
     }
 
@@ -681,14 +690,17 @@ public class PlanningManager : MonoBehaviour
         if (team.Count < 3)
         {
             planStepReportingLog.text = "Cannot start mission, fewer than three agents selected.";
+            return;
         }
         if (!GetRequiredStatus())
         {
             planStepReportingLog.text = "Cannot start mission, not all required rooms are marked to completion.";
+            return;
         }
         if (!AgentsWillExtract())
         {
             planStepReportingLog.text = "Cannot start mission, not all agents will extract.";
+            return;
         }
         //check if start is valid
         SetUpMission();
