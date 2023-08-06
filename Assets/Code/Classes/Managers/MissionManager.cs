@@ -249,6 +249,7 @@ public class MissionManager : MonoBehaviour
 
     public void NewMissionStartUp(List<Agent> iAgents = null, List<List<PlanStep>> iPLanSteps = null)
     {
+        missionLostDisplay.gameObject.SetActive(false);
         initialized = true;
         Debug.Log("init start");
         securityLevel = 0;

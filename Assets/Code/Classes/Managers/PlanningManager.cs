@@ -41,6 +41,8 @@ public class PlanningManager : MonoBehaviour
     public Sprite agent4Icon;
     public Sprite agent5Icon;
 
+    public RectTransform gameEndBox;
+
 
     public int cash = 100000;
     int cost = 0;
@@ -271,9 +273,36 @@ public class PlanningManager : MonoBehaviour
     internal void EarnMoney(double baseReward)
     {
         cash += (int)baseReward;
+        if (cash > 500000)
+        {
+            ShowGameEndPanel(true);
+            return;
+        }
+        if (cash < 0)
+        {
+            ShowGameEndPanel(false);
+            return;
+        }
+
         ClearForNewPlan();
         mapPanel.gameObject.SetActive(true);
     }
+
+    private void ShowGameEndPanel(bool gameWon)
+    {
+        teamSelectionObjects.gameObject.SetActive(false);
+        planBuildingObjects.gameObject.SetActive(false);
+        gameEndBox.gameObject.SetActive(true);
+        if (gameWon)
+        {
+            gameEndBox.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "Congratulations! You have broke free of the viscious cycle of employment and managed to retire!! (How you did that on just $500,000 is frankly more miraculous than the fact you retired at all.)";
+                }
+        else
+        {
+            gameEndBox.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "Your attempts to retire early have bankrupted you! Now you will work until your corporate overlords decide it isn't profitable to keep you around anymore.";
+        }
+    }
+
     void ClearForNewPlan()
     {
         requiredRoomsAssigned = null;
@@ -284,25 +313,13 @@ public class PlanningManager : MonoBehaviour
         planSteps.Add(new List<PlanStep>());
         planSteps.Add(new List<PlanStep>());
         selectedAgentId = 0;
-        team[selectedAgentId].isInside = false;
-        foreach (TMPro.TextMeshProUGUI t in planningBoxTextLIst[selectedAgentId])
-        {
-            t.gameObject.SetActive(true);
-            Destroy(t.gameObject);
-        }
-        selectedAgentId = 1;
-        team[selectedAgentId].isInside = false;
-        foreach (TMPro.TextMeshProUGUI t in planningBoxTextLIst[selectedAgentId])
-        {
-            t.gameObject.SetActive(true);
-            Destroy(t.gameObject);
-        }
-        selectedAgentId = 2;
-        team[selectedAgentId].isInside = false;
-        foreach (TMPro.TextMeshProUGUI t in planningBoxTextLIst[selectedAgentId])
-        {
-            t.gameObject.SetActive(true);
-            Destroy(t.gameObject);
+        for(int i =0; i<team.Count; i++) {
+            team[i].isInside = false;
+            foreach (TMPro.TextMeshProUGUI t in planningBoxTextLIst[i])
+            {
+                t.gameObject.SetActive(true);
+                Destroy(t.gameObject);
+            }
         }
         for (int i = 0; i < planningBoxContent.childCount; i++)
         {
@@ -752,8 +769,8 @@ public class PlanningManager : MonoBehaviour
 
     public void NextMission()
     {
-        int loadNumber = missionManager.mission.missionId+1;
-        if (loadNumber >1)
+        int loadNumber = missionManager.mission.missionId + 1;
+        if (loadNumber > 1)
         {
             loadNumber = 0;
         }
@@ -765,7 +782,7 @@ public class PlanningManager : MonoBehaviour
     }
     public void PrevMission()
     {
-        int loadNumber = missionManager.mission.missionId-1;
+        int loadNumber = missionManager.mission.missionId - 1;
         if (loadNumber < 0)
         {
             loadNumber = 1;
