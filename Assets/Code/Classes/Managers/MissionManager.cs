@@ -522,7 +522,7 @@ public class MissionManager : MonoBehaviour
         PlanStep step = plan.GetCurrentStep(agent.id);
         int roomNumber = step.roomNumber;
         CheckType check = map.GetRoomCheckType(roomNumber);
-        int difficultyMod = (int)Math.Floor(securityLevel * 0.5 * (int)mission.securityInterval);
+        int difficultyMod = (int)Math.Floor(securityLevel * ((double)mission.penalty/2) * (int)mission.securityInterval);
         String statusString = "";
 
 
