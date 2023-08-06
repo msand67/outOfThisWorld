@@ -84,7 +84,7 @@ namespace dataStructures
             }
             if (isRequiredSatisfied)
             {
-                this.GetComponentInChildren<UnityEngine.UI.Image>().color = new Color(0.3f, 1, 0.3f, 0.5f);
+                this.GetComponentInChildren<UnityEngine.UI.Image>().color = new Color(0.3f, 0.3f, 1, 0.5f);
             }
             else
             {
@@ -95,7 +95,7 @@ namespace dataStructures
 
         internal void HideHighlight()
         {
-            this.GetComponentInChildren<UnityEngine.UI.Image>().color = new Color(0.3f, 1, 0.3f, 0f);
+            this.GetComponentInChildren<UnityEngine.UI.Image>().color = new Color(0.3f, 0.3f, 1, 0f);
         }
     }
 }
