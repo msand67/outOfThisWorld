@@ -295,7 +295,7 @@ public class PlanningManager : MonoBehaviour
         gameEndBox.gameObject.SetActive(true);
         if (gameWon)
         {
-            gameEndBox.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "Congratulations! You have broke free of the viscious cycle of employment and managed to retire!! (How you did that on just $500,000 is frankly more miraculous than the fact you retired at all.)";
+            gameEndBox.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "Congratulations! You have broken free of the viscious cycle of employment and managed to retire!! (The fact you did that on just $500,000 is frankly more miraculous than the fact you retired at all.)";
                 }
         else
         {
@@ -734,6 +734,8 @@ public class PlanningManager : MonoBehaviour
         missionPhaseObject.SetActive(true);
         mapPanel.gameObject.transform.localPosition = new Vector3(-14, 107, 0);
         this.gameObject.SetActive(false);
+        missionManager.mission.LoadMissionData(missionManager.mission.missionId);
+        mapPanel.GetComponentInChildren<Map>().FetchDataFromFile(missionManager.mission.missionId, 9);
         missionManager.NewMissionStartUp(team, planSteps);
     }
 

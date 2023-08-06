@@ -351,6 +351,10 @@ public class MissionManager : MonoBehaviour
         agentMini2.SetParent(this.transform);
         missionPhaseContainer.SetActive(false);
         planningPhaseContainer.SetActive(true);
+        foreach(Agent a in agents)
+        {
+            a.currentRoom = -1;
+        }
 
         if (success)
         {
