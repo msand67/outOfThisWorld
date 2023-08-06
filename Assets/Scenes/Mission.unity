@@ -591,7 +591,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 926565954}
   m_HandleRect: {fileID: 926565953}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -1820,6 +1820,7 @@ GameObject:
   - component: {fileID: 199963677}
   - component: {fileID: 199963676}
   - component: {fileID: 199963675}
+  - component: {fileID: 199963678}
   m_Layer: 5
   m_Name: ClearStepsButton
   m_TagString: Untagged
@@ -1941,6 +1942,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 199963673}
   m_CullTransparentMesh: 1
+--- !u!114 &199963678
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 199963673}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db1fb67325255c24eae501395ee6b9c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  message: Remove ALL steps from the currently selected agent.
 --- !u!1 &200666585
 GameObject:
   m_ObjectHideFlags: 0
@@ -3495,7 +3509,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db1fb67325255c24eae501395ee6b9c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  message: bar
+  message: This panel will log events during this mission, and their results.
 --- !u!1 &372669505
 GameObject:
   m_ObjectHideFlags: 0
@@ -4219,6 +4233,7 @@ GameObject:
   - component: {fileID: 449033596}
   - component: {fileID: 449033598}
   - component: {fileID: 449033597}
+  - component: {fileID: 449033599}
   m_Layer: 5
   m_Name: SecurityPanel
   m_TagString: MissionPhase
@@ -4287,6 +4302,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 449033595}
   m_CullTransparentMesh: 1
+--- !u!114 &449033599
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 449033595}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db1fb67325255c24eae501395ee6b9c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  message: How aware the mission site is of your presence. If Security hits level
+    5, you lose this mission!
 --- !u!1 &452904230
 GameObject:
   m_ObjectHideFlags: 0
@@ -11219,6 +11248,7 @@ GameObject:
   - component: {fileID: 1109417866}
   - component: {fileID: 1109417865}
   - component: {fileID: 1109417864}
+  - component: {fileID: 1109417867}
   m_Layer: 5
   m_Name: RemoveStepButton
   m_TagString: Untagged
@@ -11340,6 +11370,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1109417862}
   m_CullTransparentMesh: 1
+--- !u!114 &1109417867
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1109417862}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db1fb67325255c24eae501395ee6b9c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  message: Remove the newest step from the currently selected Agent.
 --- !u!1 &1126858452
 GameObject:
   m_ObjectHideFlags: 0
@@ -12876,6 +12919,7 @@ GameObject:
   - component: {fileID: 1375377307}
   - component: {fileID: 1375377309}
   - component: {fileID: 1375377308}
+  - component: {fileID: 1375377310}
   m_Layer: 5
   m_Name: CashPanel
   m_TagString: Untagged
@@ -12941,6 +12985,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1375377306}
   m_CullTransparentMesh: 1
+--- !u!114 &1375377310
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1375377306}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db1fb67325255c24eae501395ee6b9c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  message: Get this much money to win, if you finish a mission and have negative
+    money, you lose!
 --- !u!1 &1379774899
 GameObject:
   m_ObjectHideFlags: 0
@@ -12994,7 +13052,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1380542089
 RectTransform:
   m_ObjectHideFlags: 0
