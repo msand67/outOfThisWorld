@@ -16,14 +16,16 @@ namespace dataStructures
         [SerializeField]
         public TMPro.TextMeshProUGUI textBox;
         public int id;
+        public string description;
         private UnityEngine.UI.Image background;
 
-        public void init(Check newCheck, bool iIsEntrance, int iId)
+        public void init(Check newCheck, bool iIsEntrance, int iId, string iDesc)
         {
 
             check = newCheck;
             isEntrance = iIsEntrance;
             id = iId;
+            description = iDesc;
         }
 
         public void UpdateTooltipText(int roomId)
@@ -43,8 +45,7 @@ namespace dataStructures
             }
             if (isEntrance)
             {
-                desc = desc.Substring(0, desc.Length-2);
-                desc += " (Entrance)\n";
+                desc += "(Entrance)\n";
             }
             desc += $"Type: {check.type.ToString()}\n";
             desc += $"Difficulty: {check.difficulty.ToString()}\n";
@@ -65,8 +66,7 @@ namespace dataStructures
             }
             if (isEntrance)
             {
-                desc = desc.Substring(0, desc.Length - 2);
-                desc += " (Entrance)\n";
+                desc += "(Entrance)\n";
             }
             desc += $"Check Details:\nType: {check.type.ToString()}\n";
             desc += $"Difficulty: {check.difficulty.ToString()}\n";
@@ -91,6 +91,11 @@ namespace dataStructures
                 this.GetComponentInChildren<UnityEngine.UI.Image>().color = new Color(1, 0.3f, 0.3f, 0.5f);
 
             }
+        }
+
+        internal void HideHighlight()
+        {
+            this.GetComponentInChildren<UnityEngine.UI.Image>().color = new Color(0.3f, 1, 0.3f, 0f);
         }
     }
 }

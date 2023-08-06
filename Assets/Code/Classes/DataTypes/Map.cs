@@ -58,7 +58,6 @@ namespace dataStructures
             double[] array8 = { -2, -2, -2, -2, -2, -2, 3, -2, -1 };
             travelMatrix = new List<List<double>>();
             travelMatrix.Add(array0.ToList());
-            var foo = array1.ToList();
             travelMatrix.Add(array1.ToList());
             travelMatrix.Add(array2.ToList());
             travelMatrix.Add(array3.ToList());
@@ -111,6 +110,15 @@ namespace dataStructures
                 }
             }
         }
+        internal void UpdateRoomTextBoxes()
+        {
+            foreach (Room r in roomList)
+            {
+                r.HideHighlight();
+                r.UpdatePlanningDescription(r.check.isHidden);
+                r.DisplayRequiredStatus(!r.check.isRequired);
+            }
+        }
         public string GetRoomDescription(int roomId, bool isStillHidden)
         {
             return roomList[roomId].GetRoomDescription(isStillHidden);
@@ -129,7 +137,7 @@ namespace dataStructures
             return myList;
         }
 
-        private void FetchDataFromFile(int id, int roomCount)
+        public void FetchDataFromFile(int id, int roomCount)
         {
             string myFolder = Application.streamingAssetsPath + mapDataPath + $"map_{id}/";
             //fetch image here
@@ -138,6 +146,8 @@ namespace dataStructures
             //PlaceRoomsFromFile(roomLocReader.ReadToEnd());
             Debug.Log(GetRoomData());
             InsertRoomDataInChildren();
+            UpdateRoomTextBoxes();
+            UpdateRoomTooltips();
         }
         void InsertRoomDataInChildren()
         {

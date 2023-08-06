@@ -276,23 +276,29 @@ public class PlanningManager : MonoBehaviour
     }
     void ClearForNewPlan()
     {
+        requiredRoomsAssigned = null;
+        hiddenRoomsRevealed = null;
+
         planSteps = new List<List<PlanStep>>();
         planSteps.Add(new List<PlanStep>());
         planSteps.Add(new List<PlanStep>());
         planSteps.Add(new List<PlanStep>());
         selectedAgentId = 0;
+        team[selectedAgentId].isInside = false;
         foreach (TMPro.TextMeshProUGUI t in planningBoxTextLIst[selectedAgentId])
         {
             t.gameObject.SetActive(true);
             Destroy(t.gameObject);
         }
         selectedAgentId = 1;
+        team[selectedAgentId].isInside = false;
         foreach (TMPro.TextMeshProUGUI t in planningBoxTextLIst[selectedAgentId])
         {
             t.gameObject.SetActive(true);
             Destroy(t.gameObject);
         }
         selectedAgentId = 2;
+        team[selectedAgentId].isInside = false;
         foreach (TMPro.TextMeshProUGUI t in planningBoxTextLIst[selectedAgentId])
         {
             t.gameObject.SetActive(true);
@@ -516,7 +522,7 @@ public class PlanningManager : MonoBehaviour
             if (distance > 0)
             {
                 //if we have a step distinct from previous, 
-                myStep = new PlanStep(AgentAction.Move, currentRoom, room.id, distance);
+                myStep = new PlanStep(AgentAction.Move, currentRoom, room.id, team[selectedAgentId].ComputeTime(distance, AgentAction.Move));
                 if (!myStep.Compare(planSteps[selectedAgentId][planSteps[selectedAgentId].Count - 1]))
                 {
                     planSteps[selectedAgentId].Add(myStep);
@@ -532,7 +538,7 @@ public class PlanningManager : MonoBehaviour
             }
         }
         //then creat makeCheck
-        myStep = new PlanStep(AgentAction.MakeCheck, room.id, -1, room.check.timeToExecute);
+        myStep = new PlanStep(AgentAction.MakeCheck, room.id, -1, team[selectedAgentId].ComputeTime(room.check.timeToExecute, AgentAction.MakeCheck));
         if (!myStep.Compare(planSteps[selectedAgentId][planSteps[selectedAgentId].Count - 1]))
         {
             //if we have a distinct step, create and update.
@@ -572,7 +578,7 @@ public class PlanningManager : MonoBehaviour
             {
                 planSteps[selectedAgentId].Add(new PlanStep(action, room.id, room.id, 10));
                 AddPlanStepToDisplay(planSteps[selectedAgentId][planSteps[selectedAgentId].Count - 1]);
-                planStepReportingLog.text = $"{action.ToString()} action added to {agents[selectedAgentId].name}'s plan";
+                planStepReportingLog.text = $"{action.ToString()} action added to {team[selectedAgentId].name}'s plan";
                 ConstructPlanStep(room);
                 team[selectedAgentId].isInside = true;
             }
@@ -581,7 +587,7 @@ public class PlanningManager : MonoBehaviour
 
                 planSteps[selectedAgentId].Add(new PlanStep(action, room.id, -1, 10));
                 AddPlanStepToDisplay(planSteps[selectedAgentId][planSteps[selectedAgentId].Count - 1]);
-                planStepReportingLog.text = $"{action.ToString()} action added to {agents[selectedAgentId].name}'s plan";
+                planStepReportingLog.text = $"{action.ToString()} action added to {team[selectedAgentId].name}'s plan";
                 team[selectedAgentId].isInside = false;
             }
             else
@@ -607,7 +613,7 @@ public class PlanningManager : MonoBehaviour
             currentRoom = planSteps[selectedAgentId][top].roomNumber;
         }
         planSteps[selectedAgentId].Add(new PlanStep(AgentAction.Wait, currentRoom, -1, time));
-        planStepReportingLog.text = $"Wait action added to {agents[selectedAgentId].name}'s plan";
+        planStepReportingLog.text = $"Wait action added to {team[selectedAgentId].name}'s plan";
         AddPlanStepToDisplay(planSteps[selectedAgentId][planSteps[selectedAgentId].Count - 1]);
     }
     public void ClearPlanSteps()
@@ -742,5 +748,39 @@ public class PlanningManager : MonoBehaviour
     public void BackToMenu()
     {
         UnityEngine.SceneManagement.SceneManager.LoadScene("Landing Scene");
+    }
+
+    public void NextMission()
+    {
+        int loadNumber = missionManager.mission.missionId+1;
+        if (loadNumber >1)
+        {
+            loadNumber = 0;
+        }
+        missionManager.mission.LoadMissionData(loadNumber);
+        ClearForNewPlan();
+        mapPanel.GetComponentInChildren<Map>().FetchDataFromFile(loadNumber, 9);
+        ShowMissionDetails();
+
+    }
+    public void PrevMission()
+    {
+        int loadNumber = missionManager.mission.missionId-1;
+        if (loadNumber < 0)
+        {
+            loadNumber = 1;
+        }
+
+        missionManager.mission.LoadMissionData(loadNumber);
+        ClearForNewPlan();
+        mapPanel.GetComponentInChildren<Map>().FetchDataFromFile(loadNumber, 9);
+        ShowMissionDetails();
+
+
+    }
+
+    public void ShowMissionDetails()
+    {
+        roomDetailsBox.text = missionManager.mission.GetDescription();
     }
 }

@@ -69,8 +69,11 @@ public class MissionManager : MonoBehaviour
     GameObject planningPhaseContainer;
 
     public RectTransform agentMini0;
+    public IEnumerator agent0Coroutine;
     public RectTransform agentMini1;
+    public IEnumerator agent1Coroutine;
     public RectTransform agentMini2;
+    public IEnumerator agent2Coroutine;
 
 
     [SerializeField]
@@ -94,7 +97,6 @@ public class MissionManager : MonoBehaviour
         mission = new Mission(map);
 
 
-        LoadAgents();
 
         failureCount = new Dictionary<int, int>();
         foreach (Agent a in agents)
@@ -119,11 +121,11 @@ public class MissionManager : MonoBehaviour
         Debug.Log(JsonUtility.ToJson(plan));
 
 
-        StartupUI();
-        Debug.Log(JsonUtility.ToJson(agents[1]));
+        //StartupUI();
 
 
         //missionPhaseContainer.SetActive(true);
+        Debug.Log(JsonUtility.ToJson(mission));
         Debug.Log("init finished.");
         //SaveAgents();
     }
@@ -164,15 +166,16 @@ public class MissionManager : MonoBehaviour
     {
         for (int i = 0; i < 3; i++)
         {
+            PlanStep currentStep = plan.GetCurrentStep(agents[i].id);
 
-            double timeToMove = agents[i].ComputeTime(plan.GetCurrentStep(i).baseTime, AgentAction.Enter);
-            if (plan.GetCurrentStep(i).targetRoom == 1)
+            double timeToMove = agents[i].ComputeTime(currentStep.baseTime, AgentAction.Enter);
+            if (currentStep.targetRoom == 1)
             {
                 if (i == 0)
                 {
                     agentMini0.SetParent(Entrance1);
                     agentMini0.localPosition = new Vector3(0, 0, 0);
-                    MoveAgentMini(i, plan.GetCurrentStep(i).targetRoom);
+                    MoveAgentMini(agents[i].id, currentStep.targetRoom);
                     StartCoroutine(MoveFromTo(agentMini0, timeToMove));
                 }
                 else if (i == 1)
@@ -180,14 +183,14 @@ public class MissionManager : MonoBehaviour
                     agentMini1.SetParent(Entrance1);
                     agentMini1.localPosition = new Vector3(0, 0, 0);
                     StartCoroutine(MoveFromTo(agentMini1, timeToMove));
-                    MoveAgentMini(i, plan.GetCurrentStep(i).targetRoom);
+                    MoveAgentMini(agents[i].id, currentStep.targetRoom);
                 }
                 else
                 {
                     agentMini2.SetParent(Entrance1);
                     agentMini2.localPosition = new Vector3(0, 0, 0);
                     StartCoroutine(MoveFromTo(agentMini2, timeToMove));
-                    MoveAgentMini(i, plan.GetCurrentStep(i).targetRoom);
+                    MoveAgentMini(agents[i].id, currentStep.targetRoom);
                 }
             }
             else
@@ -198,21 +201,21 @@ public class MissionManager : MonoBehaviour
                     agentMini0.SetParent(Entrance2);
                     agentMini0.localPosition = new Vector3(0, 0, 0);
                     StartCoroutine(MoveFromTo(agentMini0, timeToMove));
-                    MoveAgentMini(i, plan.GetCurrentStep(i).targetRoom);
+                    MoveAgentMini(agents[i].id, plan.GetCurrentStep(agents[i].id).targetRoom);
                 }
                 else if (i == 1)
                 {
                     agentMini1.SetParent(Entrance2);
                     agentMini1.localPosition = new Vector3(0, 0, 0);
                     StartCoroutine(MoveFromTo(agentMini1, timeToMove));
-                    MoveAgentMini(i, plan.GetCurrentStep(i).targetRoom);
+                    MoveAgentMini(agents[i].id, currentStep.targetRoom);
                 }
                 else
                 {
                     agentMini2.SetParent(Entrance2);
                     agentMini2.localPosition = new Vector3(0, 0, 0);
                     StartCoroutine(MoveFromTo(agentMini2, timeToMove));
-                    MoveAgentMini(i, plan.GetCurrentStep(i).targetRoom);
+                    MoveAgentMini(agents[i].id, currentStep.targetRoom);
                 }
             }
         }
@@ -223,8 +226,7 @@ public class MissionManager : MonoBehaviour
     {
         if (!initialized && missionPhaseContainer.activeSelf)
         {
-            NewMissionStartUp();
-            initialized = true;
+            return;
         }
         if (missionPhaseContainer.activeSelf)
         {
@@ -247,12 +249,12 @@ public class MissionManager : MonoBehaviour
 
     public void NewMissionStartUp(List<Agent> iAgents = null, List<List<PlanStep>> iPLanSteps = null)
     {
+        initialized = true;
         Debug.Log("init start");
         securityLevel = 0;
         timeSlider.value = 0;
         timeOnMission = 0;
         if (map == null) { map.init(); }
-        mission = new Mission(map);
 
         ResetRoomRequiredDisplay();
 
@@ -326,6 +328,7 @@ public class MissionManager : MonoBehaviour
     public void BackToMenu()
     {
         UnityEngine.SceneManagement.SceneManager.LoadScene("Landing Scene");
+        initialized = false;
     }
 
     private void WinMission()
@@ -340,6 +343,8 @@ public class MissionManager : MonoBehaviour
 
     public void FinishMission()
     {
+        initialized = false;
+
         agentMini0.SetParent(this.transform);
         agentMini1.SetParent(this.transform);
         agentMini2.SetParent(this.transform);
@@ -451,9 +456,13 @@ public class MissionManager : MonoBehaviour
     {
         foreach (Agent a in agents)
         {
+            if(a.currentRoom == -3)
+            {
+                continue;
+            }
             VerifyRoomStatus(a);
             //put in logic to use multiplier stats
-            double timeLeft = plan.RemoveTime(a.id, a.ComputeTime(timeElapsed, plan.GetCurrentAction(a.id)));
+            double timeLeft = plan.RemoveTime(a.id, timeElapsed);
             if (timeLeft <= 0)
             {
                 CompleteStep(a);
@@ -512,12 +521,12 @@ public class MissionManager : MonoBehaviour
         String attemptStatus = "";
         PlanStep step = plan.GetCurrentStep(agent.id);
         int roomNumber = step.roomNumber;
-        CheckType check = mission.myMap.GetRoomCheckType(roomNumber);
+        CheckType check = map.GetRoomCheckType(roomNumber);
         int difficultyMod = (int)Math.Floor(securityLevel * 0.5 * (int)mission.securityInterval);
         String statusString = "";
 
 
-        (bool, int, double) result = mission.myMap.PerformCheck(roomNumber, agent.statList, difficultyMod);
+        (bool, int, double) result = map.PerformCheck(roomNumber, agent.statList, difficultyMod);
         //restructure using the checkType get method instead of passing statlist object around. RNG should happen here.
 
         if (result.Item1)
@@ -538,10 +547,21 @@ public class MissionManager : MonoBehaviour
         actionLogField.text += (statusString);
         //report success.
     }
+    private int GetAgentIndex( int id)
+    {
+        for(int i=0; i <agents.Count; i++)
+        {
+            if(agents[i].id == id)
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
     public void MoveAgentMini(int agentId, int roomId)
     {
-        double timeToMove = agents[agentId].ComputeTime(plan.GetCurrentStep(agentId).baseTime, AgentAction.Move);
-        switch (agentId)
+        double timeToMove = agents[GetAgentIndex(agentId)].ComputeTime(plan.GetCurrentStep(agentId).baseTime, AgentAction.Move);
+        switch (GetAgentIndex(agentId))
         {
             case 0:
                 if (roomId < 0) { agentMini0.SetParent(GetExitTarget(agentId)); }
@@ -549,7 +569,12 @@ public class MissionManager : MonoBehaviour
                 {
                     agentMini0.SetParent(map.roomList[roomId].transform);
                 }
-                StartCoroutine(MoveFromTo(agentMini0, timeToMove));
+                if(agent0Coroutine != null)
+                {
+                    StopCoroutine(agent0Coroutine);
+                }
+                agent0Coroutine = MoveFromTo(agentMini0, timeToMove);
+                StartCoroutine(agent0Coroutine);
                 break;
             case 1:
                 if (roomId < 0) { agentMini1.SetParent(GetExitTarget(agentId)); }
@@ -557,7 +582,12 @@ public class MissionManager : MonoBehaviour
                 {
                     agentMini1.SetParent(map.roomList[roomId].transform);
                 }
-                StartCoroutine(MoveFromTo(agentMini1, timeToMove));
+                if (agent1Coroutine != null)
+                {
+                    StopCoroutine(agent1Coroutine);
+                }
+                agent1Coroutine = MoveFromTo(agentMini1, timeToMove);
+                StartCoroutine(agent1Coroutine);
                 break;
             case 2:
                 if (roomId < 0) { agentMini2.SetParent(GetExitTarget(agentId)); }
@@ -565,7 +595,12 @@ public class MissionManager : MonoBehaviour
                 {
                     agentMini2.SetParent(map.roomList[roomId].transform);
                 }
-                StartCoroutine(MoveFromTo(agentMini2, timeToMove));
+                if (agent2Coroutine != null)
+                {
+                    StopCoroutine(agent2Coroutine);
+                }
+                agent2Coroutine = MoveFromTo(agentMini2, timeToMove);
+                StartCoroutine(agent2Coroutine);
                 break;
             default:
                 break;
@@ -574,7 +609,7 @@ public class MissionManager : MonoBehaviour
 
     private Transform GetExitTarget(int agentId)
     {
-        if (agents[agentId].currentRoom == 1)
+        if (agents[GetAgentIndex( agentId)].currentRoom == 1)
         {
             return Entrance1;
         }
@@ -584,13 +619,12 @@ public class MissionManager : MonoBehaviour
         }
     }
 
-    IEnumerator MoveFromTo(RectTransform myIcon, double timeToMove)
-    {
+    IEnumerator MoveFromTo(RectTransform myIcon, double timeToMove) { 
         Vector3 start = myIcon.localPosition;
         double timeSpent = 0;
         while ((timeSpent / timeToMove) < 1)
         {
-            timeSpent += Time.deltaTime * (timeSlider.value / 2); ;
+            timeSpent +=  Time.deltaTime* (timeSlider.value / 2); ;
             myIcon.localPosition = Vector3.Lerp(start, new Vector3(0, 0, 0), (float)(timeSpent / timeToMove));
             yield return null;
         }
@@ -618,12 +652,12 @@ public class MissionManager : MonoBehaviour
     CheckType GetAgentCheckType(Agent a)
     {
         int roomNumber = plan.GetCurrentStep(a.id).roomNumber;
-        return mission.myMap.GetRoomCheckType(roomNumber);
+        return map.GetRoomCheckType(roomNumber);
     }
     void ExitLevel(Agent a)
     {
         a.isInside = false;
-        a.currentRoom = -1;
+        a.currentRoom = -3;
         //largely UI stuff
     }
     void EnterLevel(Agent a)
@@ -634,7 +668,7 @@ public class MissionManager : MonoBehaviour
     }
     void VerifyRoomStatus(Agent a)
     {
-        if (mission.myMap.IsRoomCheckComplete(a.currentRoom) && plan.GetCurrentAction(a.id) == AgentAction.MakeCheck)
+        if (map.IsRoomCheckComplete(a.currentRoom) && plan.GetCurrentAction(a.id) == AgentAction.MakeCheck)
         {
             actionLogField.text += $"\n{a.name}'s room was cleared by someone else. Moving to room {plan.GetNextStep(a.id).targetRoom}";
             SetNextAction(a);
@@ -646,7 +680,7 @@ public class MissionManager : MonoBehaviour
         //check if next action is move and if current room check is done. (this is in the event they arrive before the agent assigned to the task)
         //Possibly add option for player to determine which checks they will attempt, which they will wait for.
         bool canMove = false;
-        if (agent.currentRoom > 0 || mission.myMap.IsRoomCheckComplete(agent.currentRoom))
+        if (agent.currentRoom > 0 || map.IsRoomCheckComplete(agent.currentRoom))
         {
             canMove = true;
         }
@@ -655,8 +689,6 @@ public class MissionManager : MonoBehaviour
             CreatePlanStepFromCurrentRoom(agent);
         }
         plan.NextAction(agent.id);
-        PlanStep step = plan.GetCurrentStep(agent.id);
-        plan.ReplaceTime(agent.id, step.timeRemaining);
 
     }
 
@@ -667,6 +699,6 @@ public class MissionManager : MonoBehaviour
 
     private void CreatePlanStepFromCurrentRoom(Agent agent, int currentRoom)
     {
-        plan.AddAction(agent.id, new PlanStep(AgentAction.MakeCheck, currentRoom, -1, mission.myMap.GetRoom(currentRoom).check.timeToExecute));
+        plan.AddAction(agent.id, new PlanStep(AgentAction.MakeCheck, currentRoom, -1, map.GetRoom(currentRoom).check.timeToExecute));
     }
 }
