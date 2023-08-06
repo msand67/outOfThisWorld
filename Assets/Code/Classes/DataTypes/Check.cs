@@ -38,12 +38,16 @@ namespace dataStructures
 
         public (bool, int, double) PerformCheck(List<Stat> statList, int difficultyMod = 0, int failureBonus = 0)
         {
-            int attemptValue = UnityEngine.Random.Range(0, 20) + statList[(int)type].level+failureBonus;
-            if (attemptValue >= (int)difficulty + difficultyMod)
+            int attemptValue = UnityEngine.Random.Range(0, 20);
+            int attemptBonus = statList[(int)type].level + failureBonus;
+            int ratio = ((int)this.difficulty + difficultyMod) - (statList[(int)type].level + failureBonus);
+            if (attemptValue + attemptBonus >= (int)difficulty + difficultyMod || attemptValue==20)
             {
                 isComplete = true;
+                Debug.Log($"Check succeeded with {(double)(20-ratio) / 20} chance of success.");
                 return (true, 0, 0);
             }
+            Debug.Log($"Check failed with {(double)(20-ratio) / 20} chance of success.");
             return (false, (int)penalty, timeToExecute);
         }
 
