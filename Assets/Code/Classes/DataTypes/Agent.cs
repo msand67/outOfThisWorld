@@ -16,6 +16,7 @@ namespace dataStructures
         public int cost;
         public string roleDesc;
         public Sprite sprite;
+        private int consecutiveFailures;
 
         public Agent()
         {
@@ -117,6 +118,18 @@ namespace dataStructures
         internal int GetCost()
         {
             return cost;
+        }
+        public int GetFailureBonus()
+        {
+            return consecutiveFailures;
+        }
+        public void AddFailure()
+        {
+            consecutiveFailures++;
+        }
+        public void ResetFailures()
+        {
+            consecutiveFailures = 0;
         }
     }
 

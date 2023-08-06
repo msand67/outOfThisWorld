@@ -268,9 +268,9 @@ namespace dataStructures
             return roomList[id];
         }
 
-        public (bool, int, double) PerformCheck(int id, List<Stat> statList, int difficultyMod)
+        public (bool, int, double) PerformCheck(int id, List<Stat> statList, int difficultyMod, int failureBonus=0)
         {
-            return roomList[id].check.PerformCheck(statList, difficultyMod);
+            return roomList[id].check.PerformCheck(statList, difficultyMod, failureBonus);
         }
         public CheckType GetRoomCheckType(int id)
         {

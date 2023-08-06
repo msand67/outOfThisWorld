@@ -36,9 +36,9 @@ namespace dataStructures
             isComplete = iIsComplete;
         }
 
-        public (bool, int, double) PerformCheck(List<Stat> statList, int difficultyMod = 0)
+        public (bool, int, double) PerformCheck(List<Stat> statList, int difficultyMod = 0, int failureBonus = 0)
         {
-            int attemptValue = UnityEngine.Random.Range(0, 20) + statList[(int)type].level;
+            int attemptValue = UnityEngine.Random.Range(0, 20) + statList[(int)type].level+failureBonus;
             if (attemptValue >= (int)difficulty + difficultyMod)
             {
                 isComplete = true;

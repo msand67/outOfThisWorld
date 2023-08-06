@@ -526,7 +526,7 @@ public class MissionManager : MonoBehaviour
         String statusString = "";
 
 
-        (bool, int, double) result = map.PerformCheck(roomNumber, agent.statList, difficultyMod);
+        (bool, int, double) result = map.PerformCheck(roomNumber, agent.statList, difficultyMod, agent.GetFailureBonus());
         //restructure using the checkType get method instead of passing statlist object around. RNG should happen here.
 
         if (result.Item1)
@@ -535,6 +535,7 @@ public class MissionManager : MonoBehaviour
             attemptStatus = "succeeded";
             map.roomList[roomNumber].DisplayRequiredStatus(true);
             statusString = $"\n{agent.name} {attemptStatus} a {check} check!";
+            agent.ResetFailures();
         }
         else
         {
@@ -543,6 +544,7 @@ public class MissionManager : MonoBehaviour
             attemptStatus = "failed";
             statusString = $"\n{agent.name} {attemptStatus} a {check} check! Time penalty of {result.Item2} added.";
             failureCount[agent.id]++;
+            agent.AddFailure();
         }
         actionLogField.text += (statusString);
         //report success.
