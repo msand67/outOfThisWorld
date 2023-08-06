@@ -359,7 +359,7 @@ public class MissionManager : MonoBehaviour
         planningPhaseContainer.GetComponent<PlanningManager>().EarnMoney(0);
         planningPhaseContainer.GetComponent<PlanningManager>().UpdateMissionCostText();
         map.gameObject.SetActive(true);
-        map.gameObject.transform.parent.transform.localPosition = new Vector3(297, 118, 0);
+        map.gameObject.transform.parent.transform.localPosition = new Vector3(253, 83, 0);
     }
 
     private void UpdateAgentPanel()
