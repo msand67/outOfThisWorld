@@ -7,7 +7,7 @@ using System;
 
 public class PlanningManager : MonoBehaviour
 {
-    public RectTransform mapPanel;
+    public Transform mapPanel;
     [SerializeField]
     public UnityEngine.UIElements.ScrollView agentView;
     public RectTransform teamSelectionObjects;
@@ -41,6 +41,11 @@ public class PlanningManager : MonoBehaviour
     public Sprite agent4Icon;
     public Sprite agent5Icon;
 
+    public List<ColorPicker> colorPickers;
+
+    public RectTransform gameEndBox;
+    public RectTransform menuPanel;
+
 
     public int cash = 100000;
     int cost = 0;
@@ -61,6 +66,7 @@ public class PlanningManager : MonoBehaviour
 
     List<Agent> team;
     List<List<PlanStep>> planSteps;
+    public GameObject pinPrefab;
     // Start is called before the first frame update
     void Start()
     {
@@ -76,6 +82,7 @@ public class PlanningManager : MonoBehaviour
         {
             planSteps.Add(new List<PlanStep>());
         }
+
         planningBoxTextLIst = new List<List<TMPro.TextMeshProUGUI>>();
         for (int i = 0; i < 3; i++)
         {
@@ -84,9 +91,10 @@ public class PlanningManager : MonoBehaviour
         foreach (UnityEngine.UI.Button b in planBuildingObjects.GetComponentsInChildren<UnityEngine.UI.Button>())
         {
             if (b.name == "ExitButton1")
-            {
-                b.onClick.AddListener(delegate { ConstructPlanStep(GetRoomById(1), AgentAction.Exit); });
-            }
+                if (b.name == "ExitButton1")
+                {
+                    b.onClick.AddListener(delegate { ConstructPlanStep(GetRoomById(1), AgentAction.Exit); });
+                }
             if (b.name == "ExitButton2")
             {
                 b.onClick.AddListener(delegate { ConstructPlanStep(GetRoomById(5), AgentAction.Exit); });
@@ -253,6 +261,7 @@ public class PlanningManager : MonoBehaviour
         }
         targetCard.Find("Image").GetComponent<UnityEngine.UI.Image>().sprite = GetImageByAgentId(agentIndex);
         Agent a = agents[agentIndex];
+        targetCard.Find("Image").GetComponent<UnityEngine.UI.Image>().color = a.agentColor;
         string statString = $"B  {a.statList[0].level},  F  {a.statList[4].level}\nE  {a.statList[1].level},  FH {a.statList[5].level}\nST {a.statList[2].level}\nG {a.statList[3].level}";
         foreach (TMPro.TextMeshProUGUI t in targetCard.GetComponentsInChildren<TMPro.TextMeshProUGUI>())
         {
@@ -274,29 +283,36 @@ public class PlanningManager : MonoBehaviour
         ClearForNewPlan();
         mapPanel.gameObject.SetActive(true);
     }
+
+    private void ShowGameEndPanel(bool gameWon)
+    {
+        teamSelectionObjects.gameObject.SetActive(false);
+        planBuildingObjects.gameObject.SetActive(false);
+        gameEndBox.gameObject.SetActive(true);
+        if (gameWon)
+        {
+            gameEndBox.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "Congratulations! You have broken free of the viscious cycle of employment and managed to retire!! (The fact you did that on just $500,000 is frankly more miraculous than the fact you retired at all.)";
+        }
+        else
+        {
+            gameEndBox.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "Your attempts to retire early have bankrupted you! Now you will work until your corporate overlords decide it isn't profitable to keep you around anymore.";
+        }
+    }
+
     void ClearForNewPlan()
     {
         planSteps = new List<List<PlanStep>>();
         planSteps.Add(new List<PlanStep>());
         planSteps.Add(new List<PlanStep>());
         planSteps.Add(new List<PlanStep>());
-        selectedAgentId = 0;
-        foreach (TMPro.TextMeshProUGUI t in planningBoxTextLIst[selectedAgentId])
+        for (int i = 0; i < team.Count; i++)
         {
-            t.gameObject.SetActive(true);
-            Destroy(t.gameObject);
-        }
-        selectedAgentId = 1;
-        foreach (TMPro.TextMeshProUGUI t in planningBoxTextLIst[selectedAgentId])
-        {
-            t.gameObject.SetActive(true);
-            Destroy(t.gameObject);
-        }
-        selectedAgentId = 2;
-        foreach (TMPro.TextMeshProUGUI t in planningBoxTextLIst[selectedAgentId])
-        {
-            t.gameObject.SetActive(true);
-            Destroy(t.gameObject);
+            team[i].isInside = false;
+            foreach (TMPro.TextMeshProUGUI t in planningBoxTextLIst[i])
+            {
+                t.gameObject.SetActive(true);
+                Destroy(t.gameObject);
+            }
         }
         for(int i =0; i< planningBoxContent.childCount; i++)
         {
@@ -400,6 +416,7 @@ public class PlanningManager : MonoBehaviour
         }
 
         targetCard.Find("Image").GetComponent<UnityEngine.UI.Image>().sprite = shiftCard.Find("Image").GetComponent<UnityEngine.UI.Image>().sprite;
+        targetCard.Find("Image").GetComponent<UnityEngine.UI.Image>().color = shiftCard.Find("Image").GetComponent<UnityEngine.UI.Image>().color;
     }
 
     public int GetIndexOfAgent(int agentId)
@@ -513,6 +530,8 @@ public class PlanningManager : MonoBehaviour
                 if (!myStep.Compare(planSteps[selectedAgentId][planSteps[selectedAgentId].Count - 1]))
                 {
                     planSteps[selectedAgentId].Add(myStep);
+                    myStep.pin = PlacePin(room, team[selectedAgentId].numMovements);
+                    team[selectedAgentId].numMovements++;
                     AddPlanStepToDisplay(planSteps[selectedAgentId][planSteps[selectedAgentId].Count - 1]);
                 }
                 //move to an adjacent room if possible
@@ -542,6 +561,48 @@ public class PlanningManager : MonoBehaviour
 
     }
 
+    private GameObject PlacePin(Room room, int num)
+    {
+        GameObject pin = Instantiate(pinPrefab);
+
+        pin.transform.SetParent(room.transform);
+        pin.transform.localPosition = new Vector3(0, 0, -1);
+        pin.GetComponent<PinInterface>().SetNumber(num);
+        pin.GetComponent<PinInterface>().SetColor(team[selectedAgentId].agentColor);
+        LineRenderer lineRenderer = pin.GetComponent<LineRenderer>();
+        Debug.Log(lineRenderer.startColor);
+        //Material whiteDiffuseMat = new Material(Shader.Find("Unlit/Texture"));
+        //lineRenderer.material = whiteDiffuseMat;
+        lineRenderer.startColor = team[selectedAgentId].agentColor;
+        lineRenderer.endColor = team[selectedAgentId].agentColor;
+        Debug.Log(lineRenderer.startColor);
+
+        lineRenderer.startWidth = lineRenderer.endWidth = 0.3f;
+
+        lineRenderer.SetPosition(0, pin.transform.position);
+        lineRenderer.SetPosition(1, GetPreviousPinLocation(pin));
+
+        return pin;
+    }
+
+    private Vector3 GetPreviousPinLocation(GameObject pin)
+    {
+        if(planSteps[selectedAgentId].Count == 1)
+        {
+            return pin.transform.position;
+        }
+        if (planSteps[selectedAgentId][planSteps[selectedAgentId].Count-2].pin != null)
+        {
+            return planSteps[selectedAgentId][planSteps[selectedAgentId].Count - 2].pin.transform.position;
+        }
+        else if(planSteps[selectedAgentId].Count >2)
+        {
+            return planSteps[selectedAgentId][planSteps[selectedAgentId].Count - 3].pin.transform.position;
+        }
+
+        return pin.transform.position;
+    }
+
     private void UpdateIsRequiredFlags(PlanStep step, bool flag)
     {
         for (int i = 0; i < requiredRoomsAssigned.Count; i++)
@@ -565,7 +626,9 @@ public class PlanningManager : MonoBehaviour
             {
                 planSteps[selectedAgentId].Add(new PlanStep(action, room.id, room.id, 10));
                 AddPlanStepToDisplay(planSteps[selectedAgentId][planSteps[selectedAgentId].Count - 1]);
-                planStepReportingLog.text = $"{action.ToString()} action added to {agents[selectedAgentId].name}'s plan";
+                planStepReportingLog.text = $"{action.ToString()} action added to {team[selectedAgentId].name}'s plan";
+                planSteps[selectedAgentId][planSteps[selectedAgentId].Count - 1].pin = PlacePin(room, team[selectedAgentId].numMovements);
+                team[selectedAgentId].numMovements++;
                 ConstructPlanStep(room);
                 team[selectedAgentId].isInside = true;
             }
@@ -574,7 +637,8 @@ public class PlanningManager : MonoBehaviour
 
                 planSteps[selectedAgentId].Add(new PlanStep(action, room.id, -1, 10));
                 AddPlanStepToDisplay(planSteps[selectedAgentId][planSteps[selectedAgentId].Count - 1]);
-                planStepReportingLog.text = $"{action.ToString()} action added to {agents[selectedAgentId].name}'s plan";
+                planStepReportingLog.text = $"{action.ToString()} action added to {team[selectedAgentId].name}'s plan";
+                planSteps[selectedAgentId][planSteps[selectedAgentId].Count-1].pin =  PlacePin(room, planSteps[selectedAgentId].Count);
                 team[selectedAgentId].isInside = false;
             }
             else
@@ -628,6 +692,11 @@ public class PlanningManager : MonoBehaviour
         planStepReportingLog.text = $"{action.ToString()} action removed from {team[selectedAgentId].name}'s plan";
         UpdateIsRequiredFlags(planSteps[selectedAgentId][planSteps[selectedAgentId].Count - 1], false);
         RemovePlanStepFromDisplay();
+        if(planSteps[selectedAgentId][planSteps[selectedAgentId].Count - 1].pin != null)
+        {
+            team[selectedAgentId].numMovements--;
+        }
+        Destroy(planSteps[selectedAgentId][planSteps[selectedAgentId].Count - 1].pin);
         planSteps[selectedAgentId].RemoveAt(planSteps[selectedAgentId].Count - 1);
     }
     public void AddPlanStepToDisplay(PlanStep step)
@@ -730,5 +799,72 @@ public class PlanningManager : MonoBehaviour
     public void BackToMenu()
     {
         UnityEngine.SceneManagement.SceneManager.LoadScene("Landing Scene");
+    }
+    public void ToggleMenu()
+    {
+        menuPanel.gameObject.SetActive(!menuPanel.gameObject.activeSelf);
+    }
+
+    public void HideMenu()
+    {
+        menuPanel.gameObject.SetActive(false);
+    }
+    public void NextMission()
+    {
+        int loadNumber = missionManager.mission.missionId + 1;
+        if (loadNumber > 1)
+        {
+            loadNumber = 0;
+        }
+        missionManager.mission.LoadMissionData(loadNumber);
+        ClearForNewPlan();
+        mapPanel.GetComponentInChildren<Map>().FetchDataFromFile(loadNumber, 9);
+        ShowMissionDetails();
+
+    }
+    public void PrevMission()
+    {
+        int loadNumber = missionManager.mission.missionId - 1;
+        if (loadNumber < 0)
+        {
+            loadNumber = 1;
+        }
+
+        missionManager.mission.LoadMissionData(loadNumber);
+        ClearForNewPlan();
+        mapPanel.GetComponentInChildren<Map>().FetchDataFromFile(loadNumber, 9);
+        ShowMissionDetails();
+
+
+    }
+
+    public void ShowMissionDetails()
+    {
+        roomDetailsBox.text = missionManager.mission.GetDescription();
+    }
+
+    public void SetAgentColor(int agentIndex)
+    {
+        if (agentIndex < team.Count)
+        {
+            team[agentIndex].agentColor = colorPickers[agentIndex].GetColor();
+        }
+        RectTransform targetCard;
+
+        switch (agentIndex)
+        {
+            case 0:
+                targetCard = agent0Card;
+                break;
+            case 1:
+                targetCard = agent1Card;
+                break;
+            case 2:
+                targetCard = agent2Card;
+                break;
+            default:
+                return;
+        }
+        targetCard.Find("Image").GetComponent<UnityEngine.UI.Image>().color = colorPickers[agentIndex].GetColor();
     }
 }

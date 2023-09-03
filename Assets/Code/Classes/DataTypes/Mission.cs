@@ -16,7 +16,7 @@ namespace dataStructures
         public BonusCriteria bonusCriteria;
 
 
-        public Mission(Map iMyMap)
+        public Mission()
         {
             myMap = iMyMap;
             gracePeriod = 120;
@@ -28,7 +28,7 @@ namespace dataStructures
             List<ActionList> tempPlanSteps = new List<ActionList>();
 
         }
-        public Mission(Map iMyMap, double iGracePeriod, SecurityInterval iMyInterval, SecurityPenalty iMyPenalty, double iBaseReward, double iBonusReward, BonusCriteria iMyCriteria)
+        public Mission(double iGracePeriod, SecurityInterval iMyInterval, SecurityPenalty iMyPenalty, double iBaseReward, double iBonusReward, BonusCriteria iMyCriteria)
         {
             myMap = iMyMap;
             gracePeriod = iGracePeriod;

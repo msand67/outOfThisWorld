@@ -103,6 +103,7 @@ namespace dataStructures
         public int targetRoom;
         public double timeRemaining;
         public double baseTime;
+        public GameObject pin;
         public PlanStep(AgentAction iAction, int iRoomNumber, int iTargetRoom = -1, double iTimeRemaining = -1)
         {
             action = iAction;

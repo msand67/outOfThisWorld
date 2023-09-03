@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 6862796523973652270}
   - component: {fileID: 8046109318940006375}
   - component: {fileID: 1154966104466148348}
+  - component: {fileID: -307910778302073262}
   m_Layer: 5
   m_Name: PlanBoxTextField
   m_TagString: Untagged
@@ -134,3 +135,18 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &-307910778302073262
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5186776405639435493}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a3c77ae625e6b44ab3c0c4dd2778f1b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  text: {fileID: 1154966104466148348}
+  textSizeScale: 1
+  isDarkText: 1

@@ -144,7 +144,8 @@ namespace dataStructures
             for (int i = 0; i < roomList.Count; i++)
             {
                 this.GetComponentsInChildren<Room>()[i] = roomList[i];
-                roomList[i].textBox = roomList[i].GetComponentInChildren<TMPro.TextMeshProUGUI>();
+                roomList[i].textBox = roomList[i].GetComponentInChildren<TMPro.TMP_Text>();
+                roomList[i].SetupBackground();
             }
         }
 

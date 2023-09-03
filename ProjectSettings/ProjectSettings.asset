@@ -625,11 +625,11 @@ PlayerSettings:
   m_MobileRenderingPath: 1
   metroPackageName: OutOfThisWorld
   metroPackageVersion: 1.0.0.0
-  metroCertificatePath: 
+  metroCertificatePath: Assets/WSATestCertificate.pfx
   metroCertificatePassword: 
-  metroCertificateSubject: 
-  metroCertificateIssuer: 
-  metroCertificateNotAfter: 0000000000000000
+  metroCertificateSubject: The_Brainfist
+  metroCertificateIssuer: The_Brainfist
+  metroCertificateNotAfter: 002ce0d535e8da01
   metroApplicationDescription: OutOfThisWorld
   wsaImages: {}
   metroTileShortName: OutOfThisWorld

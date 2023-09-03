@@ -14,9 +14,12 @@ namespace dataStructures
         public Check check;
         public bool isEntrance;
         [SerializeField]
-        public TMPro.TextMeshProUGUI textBox;
+        public TMPro.TMP_Text textBox;
         public int id;
-        private UnityEngine.UI.Image background;
+        public string description;
+        private UnityEngine.UI.Image imageBackground;
+        private SpriteRenderer spriteBackground;
+        bool isUIVersion;
 
         public void init(Check newCheck, bool iIsEntrance, int iId)
         {
@@ -24,6 +27,24 @@ namespace dataStructures
             check = newCheck;
             isEntrance = iIsEntrance;
             id = iId;
+            description = iDesc;
+            SetupBackground();
+        }
+        public void SetupBackground()
+        {
+
+            UnityEngine.UI.Image image = this.GetComponentInChildren<UnityEngine.UI.Image>();
+            SpriteRenderer sprite = this.GetComponent<SpriteRenderer>();
+            if (sprite != null)
+            {
+                spriteBackground = sprite;
+                isUIVersion = false;
+            }
+            if (image != null)
+            {
+                imageBackground = image;
+                isUIVersion = true;
+            }
         }
 
         public void UpdateTooltipText(int roomId)
@@ -84,12 +105,37 @@ namespace dataStructures
             }
             if (isRequiredSatisfied)
             {
-                this.GetComponentInChildren<UnityEngine.UI.Image>().color = new Color(0.3f, 1, 0.3f, 0.5f);
+                if (isUIVersion)
+                {
+                    imageBackground.color = new Color(0.3f, 0.3f, 1, 0.5f);
+                }
+                else
+                {
+                    spriteBackground.color = new Color(0.3f, 0.3f, 1, 0.5f);
+                }
             }
             else
             {
-                this.GetComponentInChildren<UnityEngine.UI.Image>().color = new Color(1, 0.3f, 0.3f, 0.5f);
+                if (isUIVersion)
+                {
+                    imageBackground.color = new Color(1, 0.3f, 0.3f, 0.5f);
+                }
+                else
+                {
+                    spriteBackground.color = new Color(1, 0.3f, 0.3f, 0.5f);
+                }
 
+            }
+        }
+
+        internal void HideHighlight()
+        {
+            if (isUIVersion)
+            {
+                imageBackground.color = new Color(0.3f, 0.3f, 1, 0f);
+            }else
+            {
+                spriteBackground.color = new Color(0.3f, 0.3f, 1, 0f);
             }
         }
     }

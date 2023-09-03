@@ -16,6 +16,10 @@ namespace dataStructures
         public int cost;
         public string roleDesc;
         public Sprite sprite;
+        private int consecutiveFailures;
+        public int numMovements=0;
+
+        public Color agentColor = new Color(255, 255, 255);
 
         public Agent()
         {

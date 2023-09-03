@@ -87,7 +87,7 @@ public class MissionManager : MonoBehaviour
         timeSlider.value = 2;
         timeOnMission = 0;
         map.init();
-        mission = new Mission(map);
+        mission = new Mission();
 
 
         LoadAgents();
@@ -152,6 +152,14 @@ public class MissionManager : MonoBehaviour
 
         securityPenaltyField.SetText($"Security Penalty: {mission.penalty}");
         securityIntervalField.SetText($"Security Interval: {mission.securityInterval}");
+
+        //set agent icons and colors
+        agentMini0.GetComponent<UnityEngine.UI.Image>().sprite = topAgentPortrait.sprite = GetSpriteForAgent(agents[0].id);
+        agentMini0.GetComponent<UnityEngine.UI.Image>().color = topAgentPortrait.color = agents[0].agentColor;
+        agentMini2.GetComponent<UnityEngine.UI.Image>().sprite = botAgentPortrait.sprite = GetSpriteForAgent(agents[2].id);
+        agentMini2.GetComponent<UnityEngine.UI.Image>().color = botAgentPortrait.color = agents[2].agentColor;
+        agentMini1.GetComponent<UnityEngine.UI.Image>().sprite = midAgentPortrait.sprite = GetSpriteForAgent(agents[1].id);
+        agentMini1.GetComponent<UnityEngine.UI.Image>().color = midAgentPortrait.color = agents[1].agentColor;
 
         UpdateAgentPanel();
     }
@@ -294,17 +302,14 @@ public class MissionManager : MonoBehaviour
 
     private void UpdateAgentPanel()
     {
-        agentMini0.GetComponent<UnityEngine.UI.Image>().sprite = topAgentPortrait.sprite = GetSpriteForAgent(agents[0].id);
         topAgentStatField.SetText($"{agents[0].name}\nBest Stat: {agents[0].GetBestStat()}\nFailures: {failureCount[agents[0].id]}");
         topAgentTaskField.SetText(GetAgentActionDescription(agents[0]));
         topAgentProgressBar.size = (float)GetProgressPercentage(agents[0]);
 
-        agentMini1.GetComponent<UnityEngine.UI.Image>().sprite = midAgentPortrait.sprite = GetSpriteForAgent(agents[1].id);
         midAgentStatField.SetText($"{agents[1].name}\nBest Stat: {agents[1].GetBestStat()}\nFailures: {failureCount[agents[1].id]}");
         midAgentTaskField.SetText(GetAgentActionDescription(agents[1]));
         midAgentProgressBar.size = (float)GetProgressPercentage(agents[1]);
 
-        agentMini2.GetComponent<UnityEngine.UI.Image>().sprite = botAgentPortrait.sprite = GetSpriteForAgent(agents[2].id);
         botAgentStatField.SetText($"{agents[2].name}\nBest Stat: {agents[2].GetBestStat()}\nFailures: {failureCount[agents[2].id]}");
         botAgentTaskField.SetText(GetAgentActionDescription(agents[2]));
         botAgentProgressBar.size = (float)GetProgressPercentage(agents[2]);
