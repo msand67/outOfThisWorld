@@ -45,6 +45,7 @@ public class PlanningManager : MonoBehaviour
 
     public RectTransform gameEndBox;
     public RectTransform menuPanel;
+    public RectTransform gameEndBox;
 
 
     public int cash = 100000;
@@ -280,6 +281,17 @@ public class PlanningManager : MonoBehaviour
     internal void EarnMoney(double baseReward)
     {
         cash += (int)baseReward;
+        if (cash > 500000)
+        {
+            ShowGameEndPanel(true);
+            return;
+        }
+        if (cash < 0)
+        {
+            ShowGameEndPanel(false);
+            return;
+        }
+
         ClearForNewPlan();
         mapPanel.gameObject.SetActive(true);
     }
@@ -301,6 +313,9 @@ public class PlanningManager : MonoBehaviour
 
     void ClearForNewPlan()
     {
+        requiredRoomsAssigned = null;
+        hiddenRoomsRevealed = null;
+
         planSteps = new List<List<PlanStep>>();
         planSteps.Add(new List<PlanStep>());
         planSteps.Add(new List<PlanStep>());
@@ -314,10 +329,17 @@ public class PlanningManager : MonoBehaviour
                 Destroy(t.gameObject);
             }
         }
-        for(int i =0; i< planningBoxContent.childCount; i++)
+        for (int i = 0; i < planningBoxContent.childCount; i++)
         {
             Destroy(planningBoxContent.GetChild(i));
         }
+        planningBoxTextLIst = new List<List<TMPro.TextMeshProUGUI>>();
+        planningBoxTextLIst.Add(new List<TMPro.TextMeshProUGUI>());
+        planningBoxTextLIst.Add(new List<TMPro.TextMeshProUGUI>());
+        planningBoxTextLIst.Add(new List<TMPro.TextMeshProUGUI>());
+
+
+
 
 
     }
@@ -526,7 +548,7 @@ public class PlanningManager : MonoBehaviour
             if (distance > 0)
             {
                 //if we have a step distinct from previous, 
-                myStep = new PlanStep(AgentAction.Move, currentRoom, room.id, distance);
+                myStep = new PlanStep(AgentAction.Move, currentRoom, room.id, team[selectedAgentId].ComputeTime(distance, AgentAction.Move));
                 if (!myStep.Compare(planSteps[selectedAgentId][planSteps[selectedAgentId].Count - 1]))
                 {
                     planSteps[selectedAgentId].Add(myStep);
@@ -544,7 +566,7 @@ public class PlanningManager : MonoBehaviour
             }
         }
         //then creat makeCheck
-        myStep = new PlanStep(AgentAction.MakeCheck, room.id, -1, room.check.timeToExecute);
+        myStep = new PlanStep(AgentAction.MakeCheck, room.id, -1, team[selectedAgentId].ComputeTime(room.check.timeToExecute, AgentAction.MakeCheck));
         if (!myStep.Compare(planSteps[selectedAgentId][planSteps[selectedAgentId].Count - 1]))
         {
             //if we have a distinct step, create and update.
@@ -664,7 +686,7 @@ public class PlanningManager : MonoBehaviour
             currentRoom = planSteps[selectedAgentId][top].roomNumber;
         }
         planSteps[selectedAgentId].Add(new PlanStep(AgentAction.Wait, currentRoom, -1, time));
-        planStepReportingLog.text = $"Wait action added to {agents[selectedAgentId].name}'s plan";
+        planStepReportingLog.text = $"Wait action added to {team[selectedAgentId].name}'s plan";
         AddPlanStepToDisplay(planSteps[selectedAgentId][planSteps[selectedAgentId].Count - 1]);
     }
     public void ClearPlanSteps()
@@ -674,6 +696,8 @@ public class PlanningManager : MonoBehaviour
             RemovePlanStep();
             planStepReportingLog.text = $"{team[selectedAgentId].name}'s plan erased.";
         }
+        planSteps[selectedAgentId] = new List<PlanStep>();
+        planningBoxTextLIst[selectedAgentId] = new List<TMPro.TextMeshProUGUI>();
         team[selectedAgentId].isInside = false;
     }
 
@@ -750,14 +774,17 @@ public class PlanningManager : MonoBehaviour
         if (team.Count < 3)
         {
             planStepReportingLog.text = "Cannot start mission, fewer than three agents selected.";
+            return;
         }
         if (!GetRequiredStatus())
         {
             planStepReportingLog.text = "Cannot start mission, not all required rooms are marked to completion.";
+            return;
         }
         if (!AgentsWillExtract())
         {
             planStepReportingLog.text = "Cannot start mission, not all agents will extract.";
+            return;
         }
         //check if start is valid
         SetUpMission();
@@ -768,6 +795,8 @@ public class PlanningManager : MonoBehaviour
         missionPhaseObject.SetActive(true);
         mapPanel.gameObject.transform.localPosition = new Vector3(-14, 107, 0);
         this.gameObject.SetActive(false);
+        missionManager.mission.LoadMissionData(missionManager.mission.missionId);
+        mapPanel.GetComponentInChildren<Map>().FetchDataFromFile(missionManager.mission.missionId, 9);
         missionManager.NewMissionStartUp(team, planSteps);
     }
 

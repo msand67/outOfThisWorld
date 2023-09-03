@@ -122,6 +122,18 @@ namespace dataStructures
         {
             return cost;
         }
+        public int GetFailureBonus()
+        {
+            return consecutiveFailures;
+        }
+        public void AddFailure()
+        {
+            consecutiveFailures++;
+        }
+        public void ResetFailures()
+        {
+            consecutiveFailures = 0;
+        }
     }
 
     [Serializable]

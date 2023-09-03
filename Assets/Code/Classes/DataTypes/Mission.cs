@@ -7,18 +7,17 @@ namespace dataStructures
 {
     public class Mission
     {
-        public Map myMap;
         public double gracePeriod;
         public SecurityInterval securityInterval;
         public SecurityPenalty penalty;
         public double baseReward;
         public double bonusReward;
         public BonusCriteria bonusCriteria;
+        public int missionId = 0;
 
 
         public Mission()
         {
-            myMap = iMyMap;
             gracePeriod = 120;
             securityInterval = SecurityInterval.medium;
             penalty = SecurityPenalty.medium;
@@ -30,13 +29,28 @@ namespace dataStructures
         }
         public Mission(double iGracePeriod, SecurityInterval iMyInterval, SecurityPenalty iMyPenalty, double iBaseReward, double iBonusReward, BonusCriteria iMyCriteria)
         {
-            myMap = iMyMap;
             gracePeriod = iGracePeriod;
             securityInterval = iMyInterval;
             penalty = iMyPenalty;
             baseReward = iBaseReward;
             bonusReward = iBonusReward;
             bonusCriteria = iMyCriteria;
+        }
+        public void LoadMissionData(int missionNum)
+        {
+            string path = Application.streamingAssetsPath + "/MapData/map_" + missionNum + "/missionData.json";
+            using(System.IO.StreamReader myReader = new System.IO.StreamReader(path))
+            {
+                JsonUtility.FromJsonOverwrite(myReader.ReadToEnd(), this);
+            }
+        }
+
+        internal string GetDescription()
+        {
+            string desc = $"Grace Period: {gracePeriod}\nSecurity Interval: {securityInterval}\nSecurity Penalty: {penalty.ToString()}\nReward: ${baseReward}";
+
+
+            return desc;
         }
     }
 }

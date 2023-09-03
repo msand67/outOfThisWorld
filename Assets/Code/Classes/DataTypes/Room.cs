@@ -21,7 +21,7 @@ namespace dataStructures
         private SpriteRenderer spriteBackground;
         bool isUIVersion;
 
-        public void init(Check newCheck, bool iIsEntrance, int iId)
+        public void init(Check newCheck, bool iIsEntrance, int iId, string iDesc)
         {
 
             check = newCheck;
@@ -64,8 +64,7 @@ namespace dataStructures
             }
             if (isEntrance)
             {
-                desc = desc.Substring(0, desc.Length-2);
-                desc += " (Entrance)\n";
+                desc += "(Entrance)\n";
             }
             desc += $"Type: {check.type.ToString()}\n";
             desc += $"Difficulty: {check.difficulty.ToString()}\n";
@@ -86,8 +85,7 @@ namespace dataStructures
             }
             if (isEntrance)
             {
-                desc = desc.Substring(0, desc.Length - 2);
-                desc += " (Entrance)\n";
+                desc += "(Entrance)\n";
             }
             desc += $"Check Details:\nType: {check.type.ToString()}\n";
             desc += $"Difficulty: {check.difficulty.ToString()}\n";
