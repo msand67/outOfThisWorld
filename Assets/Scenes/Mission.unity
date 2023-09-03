@@ -5299,7 +5299,6 @@ MonoBehaviour:
   - {fileID: 1139232516}
   gameEndBox: {fileID: 1798626792}
   menuPanel: {fileID: 1899531930}
-  gameEndBox: {fileID: 1798626792}
   cash: 100000
   cashText: {fileID: 1770442472}
   agents: []

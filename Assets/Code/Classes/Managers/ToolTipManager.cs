@@ -7,7 +7,7 @@ using UnityEngine.EventSystems;
 public class ToolTipManager : MonoBehaviour, IPointerEnterHandler
 {
     public static ToolTipManager _instance;
-    public TMPro.TextMeshProUGUI textBox;
+    public TMPro.TMP_Text textBox;
 
     private void Awake()
     {

@@ -45,7 +45,6 @@ public class PlanningManager : MonoBehaviour
 
     public RectTransform gameEndBox;
     public RectTransform menuPanel;
-    public RectTransform gameEndBox;
 
 
     public int cash = 100000;
