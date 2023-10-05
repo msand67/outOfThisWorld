@@ -21,7 +21,7 @@ namespace dataStructures
         private SpriteRenderer spriteBackground;
         bool isUIVersion;
 
-        public void init(Check newCheck, bool iIsEntrance, int iId, string iDesc)
+        public void init(Check newCheck, bool iIsEntrance, string iDesc, int iId)
         {
 
             check = newCheck;
